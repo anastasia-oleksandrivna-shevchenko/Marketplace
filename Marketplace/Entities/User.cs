@@ -26,7 +26,11 @@ public class User
     public String PasswordHash { get; set; }
 
     [Required, RegularExpression("Buyer|Seller")]
-    public string Role { get; set; }
+    public string Role { get; set; } 
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    
+    public ICollection<Store> Stores { get; set; }
+    public ICollection<Order> Orders { get; set; }
+    public ICollection<Review> Reviews { get; set; }
 }

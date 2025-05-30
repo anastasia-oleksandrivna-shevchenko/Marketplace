@@ -18,5 +18,8 @@ public class Store
     [MaxLength(200)] public string Location { get; set; }
 
     [Range(0, 5)] public float Rating { get; set; }
+    
+    public ICollection<Product> Products { get; set; }
+    public ICollection<Order> Orders { get; set; }
 }
 

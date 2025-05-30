@@ -25,4 +25,7 @@ public class Product
 
     [Url]
     [MaxLength(500)] public string ImageUrl { get; set; }
+    
+    public ICollection<OrderItem> OrderItems { get; set; }
+    public ICollection<Review> Reviews { get; set; }
 }
