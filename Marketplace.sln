@@ -1,6 +1,10 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Marketplace", "Marketplace\Marketplace.csproj", "{E97FD778-18E3-4712-BD58-FBEBF1F8828A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Marketplace.API", "Marketplace.API\Marketplace.API.csproj", "{E97FD778-18E3-4712-BD58-FBEBF1F8828A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Marketplace.DAL", "Marketplace.DAL\Marketplace.DAL.csproj", "{20299659-6F59-48CF-B829-92B02CA54BBD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Marketplace.BBL", "Marketplace.BBL\Marketplace.BBL.csproj", "{22B545AE-0DA2-4D7D-8E00-1E23749469D3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -12,5 +16,13 @@ Global
 		{E97FD778-18E3-4712-BD58-FBEBF1F8828A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E97FD778-18E3-4712-BD58-FBEBF1F8828A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E97FD778-18E3-4712-BD58-FBEBF1F8828A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{20299659-6F59-48CF-B829-92B02CA54BBD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{20299659-6F59-48CF-B829-92B02CA54BBD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{20299659-6F59-48CF-B829-92B02CA54BBD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{20299659-6F59-48CF-B829-92B02CA54BBD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{22B545AE-0DA2-4D7D-8E00-1E23749469D3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{22B545AE-0DA2-4D7D-8E00-1E23749469D3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{22B545AE-0DA2-4D7D-8E00-1E23749469D3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{22B545AE-0DA2-4D7D-8E00-1E23749469D3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
