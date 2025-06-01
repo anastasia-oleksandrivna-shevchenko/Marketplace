@@ -9,7 +9,7 @@ public class ProductRepository: GenericRepository<Product>, IProductRepository
 {
     public ProductRepository(MarketplaceDbContext context) : base(context) {}
 
-    public async Task<IEnumerable<Product>> GetProductsByCategoryIdAsync(int categoryId)
+    public async Task<IEnumerable<Product>> FindProductsByCategoryIdAsync(int categoryId)
     {
         return await _dbSet
             .Where(o => o.CategoryId == categoryId)
@@ -18,7 +18,7 @@ public class ProductRepository: GenericRepository<Product>, IProductRepository
             .ToListAsync();
     }
 
-    public async Task<IEnumerable<Product>> GetProductsByStoreIdAsync(int storeId)
+    public async Task<IEnumerable<Product>> FindProductsByStoreIdAsync(int storeId)
     {
         return await _dbSet
             .Where(o => o.StoreId == storeId)
@@ -27,7 +27,7 @@ public class ProductRepository: GenericRepository<Product>, IProductRepository
             .ToListAsync();
     }
 
-    public async Task<IEnumerable<Product>> GetProductsByNameAsync(string name)
+    public async Task<IEnumerable<Product>> FindProductsByNameAsync(string name)
     {
         return await _dbSet
             .Where(p => p.Name.Contains(name))
@@ -36,7 +36,7 @@ public class ProductRepository: GenericRepository<Product>, IProductRepository
             .ToListAsync();
     }
 
-    public async Task<IEnumerable<Product>> GetProductsByPriceRangeAsync(decimal minPrice, decimal maxPrice)
+    public async Task<IEnumerable<Product>> FindProductsByPriceRangeAsync(decimal minPrice, decimal maxPrice)
     {
         return await _dbSet
             .Where(p => p.Price >= minPrice && p.Price <= maxPrice)
@@ -45,14 +45,14 @@ public class ProductRepository: GenericRepository<Product>, IProductRepository
             .ToListAsync();
     }
 
-    public async Task<IEnumerable<Product>> GetProductsSortedByPriceAsync(bool ascending = true)
+    public async Task<IEnumerable<Product>> FindProductsSortedByPriceAsync(bool ascending = true)
     {
         return await _dbSet
             .OrderBy(p => ascending? p.Price : -p.Price)
             .ToListAsync();
     }
 
-    public async Task<IEnumerable<Product>> GetProductsSortedByRatingAsync(bool ascending = false)
+    public async Task<IEnumerable<Product>> FindProductsSortedByRatingAsync(bool ascending = false)
     {
         return await _dbSet
             .Include(p => p.Reviews)

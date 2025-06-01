@@ -9,7 +9,7 @@ public class OrderRepository: GenericRepository<Order>, IOrderRepository
 {
     public OrderRepository (MarketplaceDbContext context) : base(context) {}
 
-    public async Task<IEnumerable<Order>> GetOrdersByCustomerIdAsync(int customerId)
+    public async Task<IEnumerable<Order>> FindOrdersByCustomerIdAsync(int customerId)
     {
         return await _dbSet
             .Where(o => o.CustomerId == customerId)
@@ -18,7 +18,7 @@ public class OrderRepository: GenericRepository<Order>, IOrderRepository
             .ToListAsync();
     }
 
-    public async Task<IEnumerable<Order>> GetOrdersByStoreIdAsync(int storeId)
+    public async Task<IEnumerable<Order>> FindOrdersByStoreIdAsync(int storeId)
     {
         return await _dbSet
             .Where(o => o.StoreId == storeId)

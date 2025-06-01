@@ -9,7 +9,7 @@ public class OrderItemRepository: GenericRepository<OrderItem>, IOrderItemReposi
 {
     public OrderItemRepository(MarketplaceDbContext context) : base(context) {}
 
-    public async Task<IEnumerable<OrderItem>> GetItemsByOrderIdAsync(int orderId)
+    public async Task<IEnumerable<OrderItem>> FindItemsByOrderIdAsync(int orderId)
     {
         return await _dbSet
             .Where(o => o.OrderId == orderId)

@@ -9,13 +9,13 @@ public class UserRepository: GenericRepository<User>, IUserRepository
 {
     public UserRepository(MarketplaceDbContext context) : base(context) {}
 
-    public async Task<User?> GetUserByUsernameAsync(string username)
+    public async Task<User?> FindUserByUsernameAsync(string username)
     {
         return await _dbSet
             .FirstOrDefaultAsync(u => u.Username == username);
     }
     
-    public async Task<User?> GetUserByEmailAsync(string email)
+    public async Task<User?> FindUserByEmailAsync(string email)
     {
         return await _dbSet
             .FirstOrDefaultAsync(u => u.Email == email);
@@ -33,7 +33,7 @@ public class UserRepository: GenericRepository<User>, IUserRepository
             .AnyAsync(u => u.Email == email);
     }
 
-    public async Task<IEnumerable<User>> GetUsersByRoleAsync(string role)
+    public async Task<IEnumerable<User>> FindUsersByRoleAsync(string role)
     {
         return await _dbSet
             .Where(u => u.Role == role)

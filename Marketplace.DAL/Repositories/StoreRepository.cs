@@ -9,14 +9,14 @@ public class StoreRepository: GenericRepository<Store>, IStoreRepository
 {
     public StoreRepository(MarketplaceDbContext context) : base(context) {}
 
-    public async Task<IEnumerable<Store>> GetStoresByUserIdAsync(int userId)
+    public async Task<IEnumerable<Store>> FindStoresByUserIdAsync(int userId)
     {
         return await _dbSet
             .Where(s => s.UserId == userId)
             .ToListAsync();
     }
 
-    public async Task<IEnumerable<Store>> GetStoresSortedByOrdersCountAsync(bool ascending = false)
+    public async Task<IEnumerable<Store>> FindStoresSortedByOrdersCountAsync(bool ascending = false)
     {
         return await _dbSet
             .Include(s => s.Orders)
@@ -24,11 +24,19 @@ public class StoreRepository: GenericRepository<Store>, IStoreRepository
             .ToListAsync();
     }
 
-    public async Task<IEnumerable<Store>> GetStoresSortedByRatingAsync(bool ascending = false)
+    public async Task<IEnumerable<Store>> FindStoresSortedByRatingAsync(bool ascending = false)
     {
         return await _dbSet
             .OrderBy(s => ascending? s.Rating : -s.Rating)
             .ToListAsync();
+    }
+
+    public async Task<IEnumerable<Store>> FindStoresByNameAsync(string name)
+    {
+        return await _dbSet
+            .Where(s => s.StoreName.Contains(name))
+            .ToListAsync();
+            
     }
     
 }

@@ -9,7 +9,7 @@ public class ReviewRepository: GenericRepository<Review>, IReviewRepository
 {
     public ReviewRepository(MarketplaceDbContext context) : base(context) {}
 
-    public async Task<IEnumerable<Review>> GetReviewsByProductIdAsync(int productId)
+    public async Task<IEnumerable<Review>> FindReviewsByProductIdAsync(int productId)
     {
         return await _dbSet
             .Where(r => r.ProductId == productId)
@@ -17,7 +17,7 @@ public class ReviewRepository: GenericRepository<Review>, IReviewRepository
             .ToListAsync();
     }
     
-    public async Task<IEnumerable<Review>> GetReviewsSortedByRatingAsync(bool ascending = false)
+    public async Task<IEnumerable<Review>> FindReviewsSortedByRatingAsync(bool ascending = false)
     {
         return await _dbSet
             .OrderBy(r => ascending? r.Rating : -r.Rating)
@@ -25,7 +25,7 @@ public class ReviewRepository: GenericRepository<Review>, IReviewRepository
             
     }
 
-    public async Task<IEnumerable<Review>> GetReviewsSortedByDateAsync(bool ascending = false)
+    public async Task<IEnumerable<Review>> FindReviewsSortedByDateAsync(bool ascending = false)
     {
         return await (ascending
                 ? _dbSet.OrderBy(r => r.CreatedAt)

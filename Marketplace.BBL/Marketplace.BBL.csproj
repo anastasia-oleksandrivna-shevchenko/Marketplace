@@ -10,4 +10,9 @@
       <ProjectReference Include="..\Marketplace.DAL\Marketplace.DAL.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="AutoMapper" Version="14.0.0" />
+      <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.16" />
+    </ItemGroup>
+
 </Project>

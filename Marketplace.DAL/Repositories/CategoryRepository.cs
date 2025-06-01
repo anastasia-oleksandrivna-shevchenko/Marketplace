@@ -9,7 +9,7 @@ public class CategoryRepository: GenericRepository<Category>, ICategoryRepositor
 {
     public CategoryRepository(MarketplaceDbContext context) : base(context){}
 
-    public async Task<IEnumerable<Category>> GetCategoriesSortedByNameAsync(bool ascending = true)
+    public async Task<IEnumerable<Category>> FindCategoriesSortedByNameAsync(bool ascending = true)
     {
         return await (ascending 
                 ? _dbSet.OrderBy(c => c.Name) 
