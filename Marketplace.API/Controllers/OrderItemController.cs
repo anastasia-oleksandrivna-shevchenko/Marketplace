@@ -1,6 +1,7 @@
 ﻿using Marketplace.BBL.DTO.OrderItem;
 using Marketplace.BBL.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Marketplace.Controllers;
 
@@ -15,6 +16,9 @@ public class OrderItemController : ControllerBase
     public async Task<IActionResult> ByOrder(int orderId)
     {
         var orderitems = await _service.GetItemsByOrderIdAsync(orderId);
+        if (orderitems.IsNullOrEmpty())
+            return NotFound(new { message = $"Order items with order id {orderId} not found." });
+        
         return Ok(orderitems);
     }
 
@@ -23,7 +27,8 @@ public class OrderItemController : ControllerBase
     {
         var orderitem = await _service.GetOrderItemByIdAsync(id);
         if (orderitem == null)
-            return NotFound();
+            return NotFound(new { message = $"OrderItem with id {id} not found." });
+        
         return Ok(orderitem);
     }
     
@@ -35,15 +40,25 @@ public class OrderItemController : ControllerBase
     }
 
     [HttpPost("create")]
-    public async Task<IActionResult> Create(CreateOrderItemDto dto)
+    public async Task<IActionResult> Create([FromBody]CreateOrderItemDto dto)
     {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+        
         var orderitem = await _service.CreateOrderItemAsync(dto);
         return CreatedAtAction(nameof(GetById), new { id = orderitem.OrderItemId }, orderitem);
     }
 
     [HttpPut("update")]
-    public async Task<IActionResult> Update(UpdateOrderItemDto dto)
+    public async Task<IActionResult> Update([FromBody]UpdateOrderItemDto dto)
     {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        var existing = await _service.GetOrderItemByIdAsync(dto.OrderItemId);
+        if (existing == null)
+            return NotFound(new { message = $"OrderItem with id {dto.OrderItemId} not found." });
+        
         await _service.UpdateOrderItemAsync(dto); 
         return NoContent();
     }
@@ -51,6 +66,10 @@ public class OrderItemController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
+        var existing = await _service.GetOrderItemByIdAsync(id);
+        if (existing == null)
+            return NotFound(new { message = $"OrderItem with id {id} not found." });
+        
         await _service.DeleteOrderItemAsync(id); 
         return NoContent();
     }

@@ -1,6 +1,7 @@
 ﻿using Marketplace.BBL.DTO.Order;
 using Marketplace.BBL.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Marketplace.Controllers;
 
@@ -19,6 +20,9 @@ public class OrderController : ControllerBase
     public async Task<IActionResult> GetByCustomer(int customerId)
     {
         var orders = await _service.GetOrdersByCustomerIdAsync(customerId);
+        if(orders.IsNullOrEmpty())
+            return NotFound(new { message = $"Orders with customer id {customerId} not found." });
+        
         return Ok(orders);
     }
 
@@ -26,6 +30,9 @@ public class OrderController : ControllerBase
     public async Task<IActionResult> GetByStore(int storeId)
     {
         var orders = await _service.GetOrdersByStoreIdAsync(storeId);
+        if(orders.IsNullOrEmpty())
+            return NotFound(new { message = $"Orders with customer id {storeId} not found." });
+        
         return Ok(orders);
     }
 
@@ -34,20 +41,30 @@ public class OrderController : ControllerBase
     {
         var order = await _service.GetOrderByIdAsync(id);
         if (order == null)
-            return NotFound();
+            return NotFound(new { message = $"Order with id {id} not found." });
         return Ok(order);
     }
 
     [HttpPost("create")]
-    public async Task<IActionResult> Create(CreateOrderDto dto)
+    public async Task<IActionResult> Create([FromBody]CreateOrderDto dto)
     {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+        
         var order = await _service.CreateOrderAsync(dto);
         return CreatedAtAction(nameof(GetById), new { id = order.OrderId }, order);
     }
 
     [HttpPut("update")]
-    public async Task<IActionResult> Update(UpdateOrderStatusDto dto)
+    public async Task<IActionResult> Update([FromBody]UpdateOrderStatusDto dto)
     {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        var existing = await _service.GetOrderByIdAsync(dto.OrderId);
+        if (existing == null)
+            return NotFound(new { message = $"Order with id {dto.OrderId} not found." });
+        
         await _service.UpdateOrderAsync(dto); 
         return NoContent();
     }
@@ -55,6 +72,10 @@ public class OrderController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
+        var existing = await _service.GetOrderByIdAsync(id);
+        if (existing == null)
+            return NotFound(new { message = $"Order with id {id} not found." });
+
         await _service.DeleteOrderAsync(id); 
         return NoContent();
     }

@@ -8,68 +8,99 @@ namespace Marketplace.Controllers;
 [Route("api/[controller]")]
 public class UserController : ControllerBase
 {
-    private readonly IUserService _userService;
+    private readonly IUserService _service;
 
     public UserController(IUserService userService)
     {
-        _userService = userService;
+        _service = userService;
     }
     
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(int id)
     {
-        var user = await _userService.GetUserByIdAsync(id);
+        var user = await _service.GetUserByIdAsync(id);
         if (user == null)
-            return NotFound();
+            return NotFound(new { message = $"User with id {id} not found." });
         return Ok(user);
     }
     
     [HttpGet("all")]
     public async Task<IActionResult> GetAll(int id)
     {
-        var users = await _userService.GetAllUsersAsync();
+        var users = await _service.GetAllUsersAsync();
         return Ok(users);
     }
 
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] CreateUserDto dto)
     {
-        var user = await _userService.RegisterUserAsync(dto);
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+        
+        var user = await _service.RegisterUserAsync(dto);
         return CreatedAtAction(nameof(GetById), new { id = user.UserId }, user);
     }
 
     [HttpPut("update")]
     public async Task<IActionResult> Update([FromBody] UpdateUserDto dto)
     {
-        await _userService.UpdateUserAsync(dto);
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        var userExists = await _service.GetUserByIdAsync(dto.UserId);
+        if (userExists == null)
+            return NotFound(new { message = $"User with id {dto.UserId} not found." });
+
+        await _service.UpdateUserAsync(dto);
         return NoContent();
     }
 
     [HttpPut("change-password")]
     public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDto dto)
     {
-        await _userService.ChangePasswordAsync(dto);
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        var userExists = await _service.GetUserByIdAsync(dto.UserId);
+        if (userExists == null)
+            return NotFound(new { message = $"User with id {dto.UserId} not found." });
+
+        await _service.ChangePasswordAsync(dto);
         return NoContent();
     }
 
     [HttpPut("change-email")]
     public async Task<IActionResult> ChangeEmail([FromBody] ChangeEmailDto dto)
     {
-        await _userService.ChangeEmailAsync(dto);
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        var userExists = await _service.GetUserByIdAsync(dto.UserId);
+        if (userExists == null)
+            return NotFound(new { message = $"User with id {dto.UserId} not found." });
+
+        await _service.ChangeEmailAsync(dto);
         return NoContent();
     }
 
     [HttpPut("change-username")]
     public async Task<IActionResult> ChangeUsername([FromBody] ChangeUsernameDto dto)
     {
-        await _userService.ChangeUsernameAsync(dto);
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        var userExists = await _service.GetUserByIdAsync(dto.UserId);
+        if (userExists == null)
+            return NotFound(new { message = $"User with id {dto.UserId} not found." });
+
+        await _service.ChangeUsernameAsync(dto);
         return NoContent();
     }
     
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
-        await _userService.DeleteUserAsync(id); 
+        await _service.DeleteUserAsync(id); 
         return NoContent();
     }
 }

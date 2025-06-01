@@ -1,6 +1,7 @@
 ﻿using Marketplace.BBL.DTO.Product;
 using Marketplace.BBL.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Marketplace.Controllers;
 
@@ -19,7 +20,7 @@ public class ProductController : ControllerBase
     {
         var product = await _service.GetProductByIdAsync(id);
         if (product == null)
-            return NotFound();
+            return NotFound(new { message = $"Product with id {id} not found." });
         return Ok(product);
     }
 
@@ -31,15 +32,25 @@ public class ProductController : ControllerBase
     }
 
     [HttpPost("create")]
-    public async Task<IActionResult> Create(CreateProductDto dto)
+    public async Task<IActionResult> Create([FromBody]CreateProductDto dto)
     {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+        
         var products = await _service.CreateProductAsync(dto);
         return CreatedAtAction(nameof(GetById), new { id = products.ProductId }, products);
     }
 
     [HttpPut("update")]
-    public async Task<IActionResult> Update(UpdateProductDto dto)
+    public async Task<IActionResult> Update([FromBody] UpdateProductDto dto)
     {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        var existing = await _service.GetProductByIdAsync(dto.ProductId);
+        if (existing == null)
+            return NotFound(new { message = $"Product with id {dto.ProductId} not found." });
+
         await _service.UpdateProductAsync(dto); 
         return NoContent();
     }
@@ -47,6 +58,10 @@ public class ProductController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
+        var existing = await _service.GetProductByIdAsync(id);
+        if (existing == null)
+            return NotFound(new { message = $"Product with id {id} not found." });
+
         await _service.DeleteProductAsync(id); 
         return NoContent();
     }
@@ -55,6 +70,9 @@ public class ProductController : ControllerBase
     public async Task<IActionResult> ByCategory(int categoryId)
     {
         var products = await _service.GetProductsByCategoryIdAsync(categoryId);
+        if(products.IsNullOrEmpty())
+            return NotFound(new { message = $"Products with category id {categoryId} not found." });
+        
         return Ok(products);
     }
 
@@ -62,6 +80,8 @@ public class ProductController : ControllerBase
     public async Task<IActionResult> ByStore(int storeId)
     {
         var products = await _service.GetProductsByStoreIdAsync(storeId);
+        if(products.IsNullOrEmpty())
+            return NotFound(new { message = $"Products with store id {storeId} not found." });
         return Ok(products);
     }
 
@@ -69,6 +89,9 @@ public class ProductController : ControllerBase
     public async Task<IActionResult> ByName([FromQuery] string name)
     {
         var products = await _service.GetProductsByNameAsync(name);
+        if(products.IsNullOrEmpty())
+            return NotFound(new { message = $"Products with name {name} not found." });
+        
         return Ok(products);
     }
 
@@ -76,6 +99,9 @@ public class ProductController : ControllerBase
     public async Task<IActionResult> ByPriceRange([FromQuery] decimal min, [FromQuery] decimal max)
     {
         var products = await _service.GetProductsByPriceRangeAsync(min, max);
+        if(products.IsNullOrEmpty())
+            return NotFound(new { message = $"Products in range {min}-{max} not found." });
+            
         return Ok(products);
     }
 

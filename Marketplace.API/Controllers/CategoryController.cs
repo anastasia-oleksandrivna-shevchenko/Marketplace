@@ -16,7 +16,7 @@ public class CategoryController : ControllerBase
     }
 
     [HttpGet("sorted-by-name")]
-    public async Task<IActionResult> Sort([FromQuery] bool ascending)
+    public async Task<IActionResult> SortByName([FromQuery] bool ascending)
     {
         var categories = await _service.GetCategoriesSortedByNameAsync(ascending);
         return Ok(categories);
@@ -27,20 +27,30 @@ public class CategoryController : ControllerBase
     {
         var category = await _service.GetCategoryByIdAsync(id);
         if (category == null)
-            return NotFound();
+            return NotFound(new { message = $"Category with id {id} not found." });
         return Ok(category);
     }
 
     [HttpPost("create")]
-    public async Task<IActionResult> Create(CreateCategoryDto dto)
+    public async Task<IActionResult> Create([FromBody] CreateCategoryDto dto)
     {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+        
         var category = await _service.CreateCategoryAsync(dto);
         return CreatedAtAction(nameof(GetById), new { id = category.CategoryId}, category);
     }
 
     [HttpPut("update")]
-    public async Task<IActionResult> Update(UpdateCategoryDto dto)
+    public async Task<IActionResult> Update([FromBody] UpdateCategoryDto dto)
     {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+        
+        var existingCategory = await _service.GetCategoryByIdAsync(dto.CategoryId);
+        if (existingCategory == null)
+            return NotFound(new { message = $"Category with id {dto.CategoryId} not found." });
+        
         await _service.UpdateCategoryAsync(dto); 
         return NoContent();
     }
@@ -48,6 +58,10 @@ public class CategoryController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
+        var existingCategory = await _service.GetCategoryByIdAsync(id);
+        if (existingCategory == null)
+            return NotFound(new { message = $"Category with id {id} not found." });
+        
         await _service.DeleteCategoryAsync(id); 
         return NoContent();
     }

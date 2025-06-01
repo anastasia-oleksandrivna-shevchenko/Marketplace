@@ -1,6 +1,7 @@
 ﻿using Marketplace.BBL.DTO.Store;
 using Marketplace.BBL.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Marketplace.Controllers;
 
@@ -20,7 +21,7 @@ public class StoreController : ControllerBase
     {
         var store = await _service.GetStoreByIdAsync(id);
         if (store == null)
-            return NotFound();
+            return NotFound(new { message = $"Store with id {id} not found." });
         return Ok(store);
     }
 
@@ -28,6 +29,8 @@ public class StoreController : ControllerBase
     public async Task<IActionResult> GetByName(string name)
     {
         var stores = await _service.GetStoresByNameAsync(name);
+        if (stores.IsNullOrEmpty())
+            return NotFound(new { message = $"Store with name {name} not found." });
         return Ok(stores);
     }
     
@@ -53,15 +56,25 @@ public class StoreController : ControllerBase
     }
 
     [HttpPost("create")]
-    public async Task<IActionResult> Create(CreateStoreDto dto)
+    public async Task<IActionResult> Create([FromBody] CreateStoreDto dto)
     {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+        
         var store = await _service.CreateStoreAsync(dto);
         return CreatedAtAction(nameof(GetById), new { id = store.StoreId }, store);
     }
 
     [HttpPut("update")]
-    public async Task<IActionResult> Update(UpdateStoreDto dto)
+    public async Task<IActionResult> Update([FromBody] UpdateStoreDto dto)
     {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        var existing = await _service.GetStoreByIdAsync(dto.StoreId);
+        if (existing == null)
+            return NotFound(new { message = $"Store with id {dto.StoreId} not found." });
+        
         await _service.UpdateStoreAsync(dto); 
         return NoContent();
     }
@@ -69,6 +82,10 @@ public class StoreController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
+        var existing = await _service.GetStoreByIdAsync(id);
+        if (existing == null)
+            return NotFound(new { message = $"Store with id {id} not found." });
+        
         await _service.DeleteStoreAsync(id); 
         return NoContent();
     }
