@@ -1,4 +1,5 @@
-﻿using Marketplace.BBL.DTO.Product;
+﻿using Marketplace.BBL.DTO.Parameters;
+using Marketplace.BBL.DTO.Product;
 using Marketplace.BBL.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
@@ -118,4 +119,15 @@ public class ProductController : ControllerBase
         var products = await _service.GetProductsSortedByRatingAsync(ascending);
         return Ok(products);
     }
+    
+    [HttpGet("paginated")]
+    public async Task<IActionResult> GetPaginated([FromQuery] ProductParameters parameters, CancellationToken cancellationToken)
+    {
+        if (parameters.PageNumber <= 0)
+            parameters.PageNumber = 1;
+
+        var products = await _service.GetAllPaginatedAsync(parameters, cancellationToken);
+        return Ok(products);
+    }
+
 }

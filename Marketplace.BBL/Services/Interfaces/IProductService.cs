@@ -1,4 +1,6 @@
-﻿using Marketplace.BBL.DTO.Product;
+﻿using Marketplace.BBL.DTO.Parameters;
+using Marketplace.BBL.DTO.Product;
+using Marketplace.DAL.Helpers;
 
 namespace Marketplace.BBL.Services.Interfaces;
 
@@ -15,4 +17,6 @@ public interface IProductService
     Task<IEnumerable<ProductDto>> GetProductsByPriceRangeAsync(decimal minPrice, decimal maxPrice);
     Task<IEnumerable<ProductDto>> GetProductsSortedByPriceAsync(bool ascending = true);
     Task<IEnumerable<ProductDto>> GetProductsSortedByRatingAsync(bool ascending = true);
+    
+    Task<PagedList<ProductDto>> GetAllPaginatedAsync(ProductParameters parameters, CancellationToken cancellationToken = default);
 }

@@ -3,6 +3,7 @@ using Marketplace.BBL.Services;
 using Marketplace.BBL.Services.Interfaces;
 using Marketplace.DAL.Data;
 using Marketplace.DAL.Entities;
+using Marketplace.DAL.Helpers;
 using Marketplace.DAL.Repositories;
 using Marketplace.DAL.Repositories.Interfaces;
 using Microsoft.AspNetCore.Identity;
@@ -46,6 +47,9 @@ builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IOrderItemService, OrderItemService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
+
+builder.Services.AddScoped<ISortHelper<Product>, SortHelper<Product>>();
+
 
 
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();

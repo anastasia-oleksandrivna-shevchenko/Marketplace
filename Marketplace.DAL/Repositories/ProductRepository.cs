@@ -1,5 +1,7 @@
-﻿using Marketplace.DAL.Data;
+﻿using Marketplace.BBL.DTO.Parameters;
+using Marketplace.DAL.Data;
 using Marketplace.DAL.Entities;
+using Marketplace.DAL.Helpers;
 using Marketplace.DAL.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -61,4 +63,26 @@ public class ProductRepository: GenericRepository<Product>, IProductRepository
                 : -p.Reviews.Select(r => r.Rating).Average())
             .ToListAsync();
     }
+    
+    public async Task<PagedList<Product>> GetAllPaginatedAsync(
+        ProductParameters parameters,
+        ISortHelper<Product> sortHelper,
+        CancellationToken cancellationToken = default)
+    {
+        var query = _dbSet.AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(parameters.Name))
+            query = query.Where(p => p.Name.ToLower().Contains(parameters.Name.ToLower()));
+
+        
+        query = sortHelper.ApplySort(query, parameters.OrderBy);
+
+        return await PagedList<Product>.ToPagedListAsync(
+            query.AsNoTracking(),
+            parameters.PageNumber,
+            parameters.PageSize,
+            cancellationToken
+        );
+    }
+
 }
