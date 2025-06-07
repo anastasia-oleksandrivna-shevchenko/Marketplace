@@ -1,4 +1,7 @@
-﻿namespace Marketplace.DAL.Helpers;
+﻿using Marketplace.BBL.DTO.Parameters;
+using Marketplace.DAL.Entities;
+
+namespace Marketplace.DAL.Helpers;
 
 public interface ISortHelper<T>
 {

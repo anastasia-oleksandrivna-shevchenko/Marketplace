@@ -1,5 +1,7 @@
 ﻿using System.Linq.Dynamic.Core;
 using System.Reflection;
+using Marketplace.BBL.DTO.Parameters;
+using Marketplace.DAL.Entities;
 
 namespace Marketplace.DAL.Helpers;
 
@@ -36,4 +38,5 @@ public class SortHelper<T> : ISortHelper<T>
         orderQuery = orderQuery.TrimEnd(',', ' ');
         return string.IsNullOrWhiteSpace(orderQuery) ? entities : entities.OrderBy(orderQuery);
     }
+    
 }
