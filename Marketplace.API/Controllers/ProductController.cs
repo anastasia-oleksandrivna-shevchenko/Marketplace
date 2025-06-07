@@ -1,6 +1,6 @@
-﻿using Marketplace.BBL.DTO.Parameters;
-using Marketplace.BBL.DTO.Product;
+﻿using Marketplace.BBL.DTO.Product;
 using Marketplace.BBL.Services.Interfaces;
+using Marketplace.DAL.Entities.HelpModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 

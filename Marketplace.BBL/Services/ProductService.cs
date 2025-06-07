@@ -1,8 +1,8 @@
 ﻿using AutoMapper;
-using Marketplace.BBL.DTO.Parameters;
 using Marketplace.BBL.DTO.Product;
 using Marketplace.BBL.Services.Interfaces;
 using Marketplace.DAL.Entities;
+using Marketplace.DAL.Entities.HelpModels;
 using Marketplace.DAL.Helpers;
 using Marketplace.DAL.Repositories.Interfaces;
 
@@ -105,7 +105,8 @@ public class ProductService : IProductService
         return _mapper.Map<IEnumerable<ProductDto>>(products);
     }
     
-    public async Task<PagedList<ProductDto>> GetAllPaginatedAsync(ProductParameters parameters, CancellationToken cancellationToken = default)
+    public async Task<PagedList<ProductDto>> GetAllPaginatedAsync(ProductParameters parameters,
+        CancellationToken cancellationToken = default)
     {
         var pagedProducts = await _unitOfWork.ProductRepository.GetAllPaginatedAsync(parameters, _sortHelper, cancellationToken);
         var dtoList = _mapper.Map<List<ProductDto>>(pagedProducts);

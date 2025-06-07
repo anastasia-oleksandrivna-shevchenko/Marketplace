@@ -1,4 +1,6 @@
-﻿namespace Marketplace.BBL.DTO.Parameters;
+﻿using Marketplace.DAL.Entities;
+
+namespace Marketplace.DAL.Entities.HelpModels;
 
 public class ProductParameters : QueryStringParameters
 {
@@ -7,4 +9,5 @@ public class ProductParameters : QueryStringParameters
     public decimal? MaxPrice { get; set; }
     public int? CategoryId { get; set; }
     public int? StoreId { get; set; }
+    
 }

@@ -1,4 +1,4 @@
-﻿namespace Marketplace.BBL.DTO.Parameters;
+﻿namespace Marketplace.DAL.Entities.HelpModels;
 
 public abstract class QueryStringParameters
 {

@@ -1,6 +1,5 @@
 ﻿using System.Linq.Dynamic.Core;
 using System.Reflection;
-using Marketplace.BBL.DTO.Parameters;
 using Marketplace.DAL.Entities;
 
 namespace Marketplace.DAL.Helpers;
@@ -9,7 +8,7 @@ public class SortHelper<T> : ISortHelper<T>
 {
     public IQueryable<T> ApplySort(IQueryable<T> entities, string? orderByQueryString)
     {
-        if (!entities.Any())
+        if (!entities.Any() || string.IsNullOrWhiteSpace(orderByQueryString))
             return entities;
 
         if (string.IsNullOrWhiteSpace(orderByQueryString))
@@ -17,7 +16,7 @@ public class SortHelper<T> : ISortHelper<T>
 
         var orderParams = orderByQueryString.Trim().Split(',');
         var propertyInfos = typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance);
-        var orderQuery = "";
+        var orderQuery = string.Empty;
 
         foreach (var param in orderParams)
         {
@@ -25,8 +24,8 @@ public class SortHelper<T> : ISortHelper<T>
                 continue;
 
             var propertyFromQueryName = param.Split(" ")[0];
-            var objectProperty = propertyInfos.FirstOrDefault(pi => 
-                pi.Name.Equals(propertyFromQueryName, StringComparison.InvariantCultureIgnoreCase));
+            var objectProperty = propertyInfos
+                .FirstOrDefault(pi => pi.Name.Equals(propertyFromQueryName, StringComparison.InvariantCultureIgnoreCase));
 
             if (objectProperty == null)
                 continue;
@@ -36,7 +35,11 @@ public class SortHelper<T> : ISortHelper<T>
         }
 
         orderQuery = orderQuery.TrimEnd(',', ' ');
-        return string.IsNullOrWhiteSpace(orderQuery) ? entities : entities.OrderBy(orderQuery);
+        
+        if (string.IsNullOrWhiteSpace(orderQuery))
+            return entities;
+        
+        return entities.OrderBy(orderQuery);
     }
     
 }

@@ -1,4 +1,4 @@
-﻿using Marketplace.BBL.DTO.Parameters;
+﻿using Marketplace.DAL.Entities.HelpModels;
 using Marketplace.DAL.Data;
 using Marketplace.DAL.Entities;
 using Marketplace.DAL.Helpers;
@@ -98,7 +98,15 @@ public class ProductRepository: GenericRepository<Product>, IProductRepository
         
         query = ApplyFilters(query, parameters);
         
-        query = sortHelper.ApplySort(query, parameters.OrderBy);
+        if (parameters.OrderBy?.ToLower().Trim() == "rating")
+        {
+            query = query.OrderByDescending(p => p.Reviews.Any() ? p.Reviews.Average(r => r.Rating) : 0);
+        }
+        else
+        {
+            query = sortHelper.ApplySort(query, parameters.OrderBy);
+        }
+
 
         return await PagedList<Product>.ToPagedListAsync(
             query.AsNoTracking(),
