@@ -31,7 +31,7 @@ public class OrderItemService : IOrderItemService
         if (item == null) 
             throw new Exception("Order item not found");
         
-        item.Quantity = dto.Quantity ?? item.Quantity;
+        item.Quantity = dto.Quantity;
 
         await _unitOfWork.SaveAsync();
     }
