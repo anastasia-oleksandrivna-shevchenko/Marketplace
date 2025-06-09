@@ -8,6 +8,9 @@ using Marketplace.DAL.Repositories;
 using Marketplace.DAL.Repositories.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using FluentValidation;
+using FluentValidation.AspNetCore;
+using Marketplace.BBL.Validators.User;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,14 +34,13 @@ builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddAutoMapper(typeof(Program));
 
-builder.Services.AddAutoMapper(typeof(UserProfile).Assembly); // або typeof(Program).Assembly
+builder.Services.AddAutoMapper(typeof(UserProfile).Assembly); 
 builder.Services.AddAutoMapper(typeof(StoreProfile).Assembly);
 builder.Services.AddAutoMapper(typeof(ReviewProfile).Assembly);
 builder.Services.AddAutoMapper(typeof(ProductProfile).Assembly);
 builder.Services.AddAutoMapper(typeof(OrderProfile).Assembly);
 builder.Services.AddAutoMapper(typeof(OrderItemProfile).Assembly);
 builder.Services.AddAutoMapper(typeof(CategoryProfile).Assembly);
-
 
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IStoreService, StoreService>();
@@ -50,11 +52,16 @@ builder.Services.AddScoped<ICategoryService, CategoryService>();
 
 builder.Services.AddScoped<ISortHelper<Product>, SortHelper<Product>>();
 
-
-
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 
-builder.Services.AddControllers();
+builder.Services.AddControllers().AddFluentValidation();
+
+builder.Services.AddValidatorsFromAssemblyContaining<CreateUserDtoValidator>();
+
+builder.Services.AddIdentity<User, Role>()
+    .AddEntityFrameworkStores<MarketplaceDbContext>()
+    .AddDefaultTokenProviders();
+
 
 
 
@@ -73,8 +80,15 @@ app.UseHttpsRedirection();
 
 using (var scope = app.Services.CreateScope())
 {
+    var services = scope.ServiceProvider;
+    
     var context = scope.ServiceProvider.GetRequiredService<MarketplaceDbContext>();
-    DbSeeder.Seed(context);
+    
+    var userManager = services.GetRequiredService<UserManager<User>>();
+    var roleManager = services.GetRequiredService<RoleManager<Role>>();
+
+    await DbSeeder.SeedAsync(context, userManager, roleManager);
+
 }
 
 app.Run();

@@ -81,7 +81,7 @@ public class UserService : IUserService
         user.FirstName = dto.FirstName ?? user.FirstName;
         user.LastName = dto.LastName ?? user.LastName;
         user.MiddleName = dto.MiddleName ?? user.MiddleName;
-        user.Phone = dto.Phone ?? user.Phone;
+        user.PhoneNumber = dto.Phone ?? user.PhoneNumber;
 
         _unitOfWork.UserRepository.Update(user);
         await _unitOfWork.SaveAsync();
@@ -136,7 +136,7 @@ public class UserService : IUserService
         if (await _unitOfWork.UserRepository.CheckUserExistsByUsernameAsync(dto.NewUsername))
             throw new Exception("Username already in use");
 
-        user.Username = dto.NewUsername;
+        user.UserName = dto.NewUsername;
 
         _unitOfWork.UserRepository.Update(user);
         await _unitOfWork.SaveAsync();

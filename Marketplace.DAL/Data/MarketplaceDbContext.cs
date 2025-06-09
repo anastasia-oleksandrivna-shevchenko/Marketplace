@@ -1,12 +1,16 @@
 ﻿using Marketplace.DAL.Entities;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 
 namespace Marketplace.DAL.Data;
 
-using Microsoft.EntityFrameworkCore;
 
-public class MarketplaceDbContext(DbContextOptions<MarketplaceDbContext> options) : DbContext(options)
+
+public class MarketplaceDbContext : IdentityDbContext<User, Role, int>
 {
-    public DbSet<User> Users { get; set; }
+    public MarketplaceDbContext(DbContextOptions<MarketplaceDbContext> options)
+        : base(options) { }
+    
     public DbSet<Store> Stores { get; set; }
     public DbSet<Product> Products { get; set; }
     public DbSet<Category> Categories { get; set; }
@@ -20,11 +24,6 @@ public class MarketplaceDbContext(DbContextOptions<MarketplaceDbContext> options
 
         modelBuilder.Entity<User>(entity =>
         {
-            entity.HasKey(u => u.UserId);
-
-            entity.Property(u => u.UserId)
-                .ValueGeneratedOnAdd();
-
             entity.Property(u => u.FirstName)
                 .IsRequired()
                 .HasMaxLength(50);
@@ -35,24 +34,7 @@ public class MarketplaceDbContext(DbContextOptions<MarketplaceDbContext> options
 
             entity.Property(u => u.MiddleName)
                 .HasMaxLength(50);
-
-            entity.Property(u => u.Username)
-                .IsRequired()
-                .HasMaxLength(50);
-
-            entity.Property(u => u.Email)
-                .IsRequired()
-                .HasMaxLength(100);
-
-            entity.Property(u => u.Phone)
-                .IsRequired();
-
-            entity.Property(u => u.PasswordHash)
-                .IsRequired()
-                .HasMaxLength(200); 
-
-            entity.Property(u => u.Role)
-                .IsRequired();
+            
 
             entity.Property(u => u.CreatedAt)
                 .IsRequired();

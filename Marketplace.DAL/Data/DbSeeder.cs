@@ -3,13 +3,18 @@ using Bogus;
 using System.Collections.Generic;
 using Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
 
 public class DbSeeder
 {
 
-    public static void Seed(MarketplaceDbContext context)
+    public static async Task SeedAsync(MarketplaceDbContext context, 
+                                        UserManager<User> userManager,
+                                        RoleManager<Role> roleManager)
     {
-        context.Database.Migrate();
+        await context.Database.MigrateAsync();
+        
+        await SeedRolesAsync(roleManager);
     
         if (!context.Categories.Any())
         {
@@ -19,9 +24,20 @@ public class DbSeeder
         }
         if (!context.Users.Any())
         {
+            var random = new Random();
+            var roles = roleManager.Roles.ToList();
+            
             var users = GenerateUsers(10);
-            context.Users.AddRange(users);
-            context.SaveChanges();
+            
+            foreach (var user in users)
+            {
+                user.SecurityStamp = Guid.NewGuid().ToString();
+                
+                var password = new Faker().Internet.Password(8, false, "\\w", "1$");
+                await userManager.CreateAsync(user, password);
+                var randomRole = roles[random.Next(roles.Count)];
+                await userManager.AddToRoleAsync(user, randomRole.Name!);
+            }
         }
         if (!context.Stores.Any())
         {
@@ -64,20 +80,39 @@ public class DbSeeder
         }
     }
     
+    
+    public static async Task SeedRolesAsync(RoleManager<Role> roleManager)
+    {
+        if (!roleManager.Roles.Any())
+        {
+            var roles = new List<Role>
+            {
+                new Role { Name = "Buyer", NormalizedName = "BUYER" },
+                new Role { Name = "Seller", NormalizedName = "SELLER" },
+                new Role { Name = "Admin", NormalizedName = "ADMIN" }
+            };
+            
+            foreach (var role in roles)
+            {
+                var result = await roleManager.CreateAsync(role);
+                if (!result.Succeeded)
+                {
+                    throw new Exception($"Failed to create role {role.Name}: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+                }
+            }
+        }
+    }
+    
     public static List<User> GenerateUsers(int count = 10)
     {
-        var roles = new[] { "Buyer", "Seller" };
 
         var faker = new Faker<User>()
-            .RuleFor(u => u.UserId, f => 0) 
             .RuleFor(u => u.FirstName, f => f.Name.FirstName())
             .RuleFor(u => u.LastName, f => f.Name.LastName())
             .RuleFor(u => u.MiddleName, f => f.Random.Bool(0.5f) ? f.Name.FirstName() : null)
-            .RuleFor(u => u.Username, f => f.Internet.UserName())
+            .RuleFor(u => u.UserName, f => f.Internet.UserName())
             .RuleFor(u => u.Email, f => f.Internet.Email())
-            .RuleFor(u => u.Phone, f => f.Phone.PhoneNumber())
-            .RuleFor(u => u.PasswordHash, f => f.Internet.Password(8, false))
-            .RuleFor(u => u.Role, f => f.PickRandom(roles))
+            .RuleFor(u => u.PhoneNumber, f => f.Phone.PhoneNumber())
             .RuleFor(u => u.CreatedAt, f => f.Date.Past(1));
 
         var users = faker.Generate(count);
@@ -89,7 +124,7 @@ public class DbSeeder
     {
         var faker = new Faker<Store>()
             .RuleFor(s => s.StoreId, f => 0) 
-            .RuleFor(s => s.UserId, f => f.PickRandom(users).UserId) 
+            .RuleFor(s => s.UserId, f => f.PickRandom(users).Id) 
             .RuleFor(s => s.StoreName, f => f.Company.CompanyName())
             .RuleFor(s => s.Description, f => f.Lorem.Sentence(10))
             .RuleFor(s => s.Location, f => f.Address.City())
@@ -138,7 +173,7 @@ public class DbSeeder
 
         var faker = new Faker<Order>()
             .RuleFor(o => o.OrderId, f => 0)
-            .RuleFor(o => o.CustomerId, f => f.PickRandom(users).UserId)
+            .RuleFor(o => o.CustomerId, f => f.PickRandom(users).Id)
             .RuleFor(o => o.StoreId, f => f.PickRandom(stores).StoreId)
             .RuleFor(o => o.OrderDate, f => f.Date.Past(1))
             .RuleFor(o => o.Status, f => f.PickRandom(new[] { "Pending", "Shipped", "Completed" }))
@@ -173,7 +208,7 @@ public class DbSeeder
         var faker = new Faker<Review>()
             .RuleFor(r => r.ReviewId, f => 0)  
             .RuleFor(r => r.ProductId, f => f.PickRandom(products).ProductId)
-            .RuleFor(r => r.UserId, f => f.PickRandom(users).UserId)
+            .RuleFor(r => r.UserId, f => f.PickRandom(users).Id)
             .RuleFor(r => r.Rating, f => f.Random.Int(1, 5))
             .RuleFor(r => r.Comment, f => f.Lorem.Sentence(5, 10))
             .RuleFor(r => r.CreatedAt, f => f.Date.Past(1)); 
