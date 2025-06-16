@@ -1,4 +1,5 @@
 ﻿using Marketplace.BBL.DTO.User;
+using Marketplace.BBL.Exceptions;
 using Marketplace.BBL.Services.Interfaces;
 using Marketplace.DAL.Entities;
 using Microsoft.AspNetCore.Identity;
@@ -15,16 +16,14 @@ public class AuthService : IAuthService
         _userManager = userManager;
     }
 
-    public async Task<(bool Success, string? Error)> RegisterUserAsync(CreateUserDto model)
+    public async Task RegisterUserAsync(CreateUserDto model)
     {
         if (await _userManager.FindByNameAsync(model.Username) != null)
-            return (false, "User with such name exist!");
-
+            throw new ConflictException("User with such name already exists.");
         if (await _userManager.FindByEmailAsync(model.Email) != null)
-            return (false, "User with such email exist!");
-
+            throw new ConflictException("User with such email already exists.");
         if (await _userManager.Users.AnyAsync(u => u.PhoneNumber == model.Phone))
-            return (false, "User with such phone number exist!");
+            throw new ConflictException("User with such phone number already exists.");
 
         var user = new User
         {
@@ -38,18 +37,16 @@ public class AuthService : IAuthService
 
         var result = await _userManager.CreateAsync(user, model.Password);
         if (!result.Succeeded)
-            return (false, string.Join("; ", result.Errors.Select(e => e.Description)));
+            throw new ArgumentException(string.Join("; ", result.Errors.Select(e => e.Description)));
 
         if (!string.IsNullOrEmpty(model.Role))
         {
             var allowedRoles = new[] { "Admin", "Buyer", "Seller" };
 
             if (!allowedRoles.Contains(model.Role))
-                return (false, "Invalid role.");
+                throw new ArgumentException("Invalid role specified.");
 
             await _userManager.AddToRoleAsync(user, model.Role);
         }
-
-        return (true, null);
     }
 }

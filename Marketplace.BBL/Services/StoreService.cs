@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Marketplace.BBL.DTO.Store;
+using Marketplace.BBL.Exceptions;
 using Marketplace.BBL.Services.Interfaces;
 using Marketplace.DAL.Entities;
 using Marketplace.DAL.Repositories.Interfaces;
@@ -26,6 +27,8 @@ public class StoreService: IStoreService
     public async Task<IEnumerable<StoreDto>> GetStoresByUserIdAsync(int userId)
     {
         var stores = await _unitOfWork.StoreRepository.FindStoresByUserIdAsync(userId);
+        if (stores == null)
+            throw new NotFoundException($"Stores with userID {userId} not found");
         return _mapper.Map<IEnumerable<StoreDto>>(stores);
     }
 
@@ -44,16 +47,16 @@ public class StoreService: IStoreService
     public async Task<StoreDto> GetStoreByIdAsync(int id)
     {
         var store = await _unitOfWork.StoreRepository.FindByIdAsync(id);
-        if (store == null) 
-            throw new Exception("Store not found");
+        if (store == null)
+            throw new NotFoundException($"Store with ID {id} not found");
         return _mapper.Map<StoreDto>(store);
     }
 
     public async Task<IEnumerable<StoreDto>> GetStoresByNameAsync(string name)
     {
         var stores = await _unitOfWork.StoreRepository.FindStoresByNameAsync(name);
-        if (stores == null) 
-            throw new Exception("Stores not found");
+        if (stores == null || !stores.Any())
+            throw new NotFoundException($"Stores with name '{name}' not found");
         return _mapper.Map<IEnumerable<StoreDto>>(stores);
     }
     
@@ -68,7 +71,8 @@ public class StoreService: IStoreService
     public async Task UpdateStoreAsync(UpdateStoreDto dto)
     {
         var store = await _unitOfWork.StoreRepository.FindByIdAsync(dto.StoreId);
-        if (store == null) throw new Exception("Store not found");
+        if (store == null)
+            throw new NotFoundException($"Store with ID {dto.StoreId} not found");
 
         store.StoreName = dto.StoreName ?? store.StoreName;
         store.Description = dto.Description ?? store.Description;
@@ -80,8 +84,8 @@ public class StoreService: IStoreService
     public async Task DeleteStoreAsync(int storeId)
     {
         var store = await _unitOfWork.StoreRepository.FindByIdAsync(storeId);
-        if (store == null) 
-            throw new Exception("Store not found");
+        if (store == null)
+            throw new NotFoundException($"Store with ID {storeId} not found");
 
         _unitOfWork.StoreRepository.Delete(store);
         await _unitOfWork.SaveAsync();

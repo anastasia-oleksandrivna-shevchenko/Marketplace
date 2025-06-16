@@ -26,8 +26,4 @@
       <ProjectReference Include="..\Marketplace.DAL\Marketplace.DAL.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Middlewares\" />
-    </ItemGroup>
-
 </Project>

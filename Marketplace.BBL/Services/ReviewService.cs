@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Marketplace.BBL.DTO.Review;
+using Marketplace.BBL.Exceptions;
 using Marketplace.BBL.Services.Interfaces;
 using Marketplace.DAL.Entities;
 using Marketplace.DAL.Repositories.Interfaces;
@@ -31,8 +32,9 @@ public class ReviewService : IReviewService
     public async Task UpdateReviewAsync(UpdateReviewDto dto)
     {
         var review = await _unitOfWork.ReviewRepository.FindByIdAsync(dto.ReviewId);
-        if (review == null) 
-            throw new Exception("Review not found");
+        if (review == null)
+            throw new NotFoundException($"Review with ID {dto.ReviewId} not found");
+
 
         review.Comment = dto.Comment ?? review.Comment;
         review.Rating = dto.Rating ?? review.Rating;
@@ -49,8 +51,8 @@ public class ReviewService : IReviewService
     public async Task<ReviewDto> GetReviewByIdAsync(int id)
     {
         var review = await _unitOfWork.ReviewRepository.FindByIdAsync(id);
-        if (review == null) 
-            throw new Exception("Review not found");
+        if (review == null)
+            throw new NotFoundException($"Review with ID {id} not found");
 
         return _mapper.Map<ReviewDto>(review);
     }
@@ -76,8 +78,8 @@ public class ReviewService : IReviewService
     public async Task DeleteReviewAsync(int id)
     {
         var review = await _unitOfWork.ReviewRepository.FindByIdAsync(id);
-        if (review == null) 
-            throw new Exception("Review not found");
+        if (review == null)
+            throw new NotFoundException($"Review with ID {id} not found");
 
         _unitOfWork.ReviewRepository.Delete(review);
         await _unitOfWork.SaveAsync();

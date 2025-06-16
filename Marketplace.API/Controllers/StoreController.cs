@@ -1,5 +1,6 @@
 ﻿using Marketplace.BBL.DTO.Store;
 using Marketplace.BBL.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 
@@ -55,22 +56,18 @@ public class StoreController : ControllerBase
         return Ok(stores);
     }
 
+    [Authorize(Roles = "Admin, Seller")]
     [HttpPost("create")]
     public async Task<IActionResult> Create([FromBody] CreateStoreDto dto)
     {
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
-        
         var store = await _service.CreateStoreAsync(dto);
         return CreatedAtAction(nameof(GetById), new { id = store.StoreId }, store);
     }
 
+    [Authorize(Roles = "Admin, Seller")]
     [HttpPut("update")]
     public async Task<IActionResult> Update([FromBody] UpdateStoreDto dto)
     {
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
-
         var existing = await _service.GetStoreByIdAsync(dto.StoreId);
         if (existing == null)
             return NotFound(new { message = $"Store with id {dto.StoreId} not found." });
@@ -79,6 +76,7 @@ public class StoreController : ControllerBase
         return NoContent();
     }
 
+    [Authorize(Roles = "Admin, Seller")]
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {

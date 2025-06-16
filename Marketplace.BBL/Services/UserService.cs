@@ -1,14 +1,17 @@
-﻿using System.IdentityModel.Tokens.Jwt;
+﻿using System.ComponentModel.DataAnnotations;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Marketplace.BBL.Services.Interfaces;
 using Marketplace.DAL.Repositories.Interfaces;
 using AutoMapper;
 using Marketplace.BBL.DTO.User;
+using Marketplace.BBL.Exceptions;
 using Marketplace.DAL.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using ValidationException = Marketplace.BBL.Exceptions.ValidationException;
 
 namespace Marketplace.BBL.Services;
 
@@ -34,26 +37,32 @@ public class UserService : IUserService
     public async Task<UserDto> GetUserByIdAsync(int userId)
     {
         var user = await _unitOfWork.UserRepository.FindByIdAsync(userId);
-        if(user == null)
-            throw new Exception("User not found");
+        if (user == null) 
+            throw new NotFoundException($"User with id {userId} not found");
         return _mapper.Map<UserDto>(user);
     }
 
     public async Task<UserDto> GetUserByEmailAsync(string email)
     {
         var user = await _unitOfWork.UserRepository.FindUserByEmailAsync(email);
-        return user == null ? null : _mapper.Map<UserDto>(user);
+        if (user == null) 
+            throw new NotFoundException($"User with email {email} not found");
+        return _mapper.Map<UserDto>(user);
     }
 
     public async Task<UserDto> GetUserByUsernameAsync(string username)
     {
         var user = await _unitOfWork.UserRepository.FindUserByUsernameAsync(username);
-        return user == null ? null : _mapper.Map<UserDto>(user);
+        if (user == null) 
+            throw new NotFoundException($"User with username {username} not found");
+        return _mapper.Map<UserDto>(user);
     }
     
     public async Task<IEnumerable<UserDto>> GetUsersByRoleAsync(string role)
     {
         var users = await _unitOfWork.UserRepository.FindUsersByRoleAsync(role);
+        if (users == null) 
+            throw new NotFoundException($"Users with role {role} not found");
         return _mapper.Map<IEnumerable<UserDto>>(users);
     }
     
@@ -61,7 +70,7 @@ public class UserService : IUserService
     {
         var user = await _unitOfWork.UserRepository.FindByIdAsync(dto.UserId);
         if (user == null) 
-            throw new Exception("User not found");
+            throw new NotFoundException($"User with id {dto.UserId} not found");
         
         user.FirstName = dto.FirstName ?? user.FirstName;
         user.LastName = dto.LastName ?? user.LastName;
@@ -76,14 +85,14 @@ public class UserService : IUserService
     {
         var user = await _unitOfWork.UserRepository.FindByIdAsync(dto.UserId);
         if (user == null) 
-            throw new Exception("User not found");
+            throw new NotFoundException($"User with id {dto.UserId} not found");
 
         var verify = _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, dto.OldPassword);
         if (verify == PasswordVerificationResult.Failed)
-            throw new Exception("Current password is incorrect");
+            throw new ValidationException("Current password is incorrect");
 
         if (dto.NewPassword != dto.ConfirmPassword)
-            throw new Exception("New password and confirmation do not match");
+            throw new ValidationException("New password and confirmation do not match");
         
         user.PasswordHash = _passwordHasher.HashPassword(user, dto.NewPassword);
 
@@ -98,10 +107,10 @@ public class UserService : IUserService
 
         var verify = _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, dto.Password);
         if (verify == PasswordVerificationResult.Failed)
-            throw new Exception("Password is incorrect");
+            throw new ValidationException("Password is incorrect");
         
         if (await _unitOfWork.UserRepository.CheckUserExistsByEmailAsync(dto.NewEmail))
-            throw new Exception("Email already in use");
+            throw new ValidationException("Email already in use");
 
         user.Email = dto.NewEmail;
 
@@ -116,10 +125,10 @@ public class UserService : IUserService
 
         var verify = _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, dto.Password);
         if (verify == PasswordVerificationResult.Failed)
-            throw new Exception("Password is incorrect");
+            throw new ValidationException("Password is incorrect");
         
         if (await _unitOfWork.UserRepository.CheckUserExistsByUsernameAsync(dto.NewUsername))
-            throw new Exception("Username already in use");
+            throw new ValidationException("Username already in use");
 
         user.UserName = dto.NewUsername;
 
@@ -130,8 +139,8 @@ public class UserService : IUserService
     public async Task DeleteUserAsync(int userId)
     {
         var user = await _unitOfWork.UserRepository.FindByIdAsync(userId);
-        if(user == null)
-            throw new Exception("User not found");
+        if (user == null) 
+            throw new NotFoundException($"User with id {userId} not found");
         
         _unitOfWork.UserRepository.Delete(user);
         await _unitOfWork.SaveAsync();

@@ -14,7 +14,10 @@ using Marketplace.BBL.Validators.User;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Marketplace.BBL.Exceptions;
 using Marketplace.JWT.Configuration;
+using Microsoft.AspNetCore.Diagnostics;
+using ValidationException = FluentValidation.ValidationException;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -102,6 +105,41 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseExceptionHandler(errorApp =>
+{
+    errorApp.Run(async context =>
+    {
+        var exceptionHandlerPathFeature = context.Features.Get<IExceptionHandlerPathFeature>();
+        var exception = exceptionHandlerPathFeature?.Error;
+
+        context.Response.ContentType = "application/json";
+
+        switch (exception)
+        {
+            case ConflictException conflictEx:
+                context.Response.StatusCode = StatusCodes.Status409Conflict;
+                await context.Response.WriteAsJsonAsync(new { Success = false, Error = conflictEx.Message });
+                break;
+            case ValidationException validationEx:
+                context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                await context.Response.WriteAsJsonAsync(new { Success = false, Error = validationEx.Message });
+                break;
+            case NotFoundException notFoundEx:
+                context.Response.StatusCode = StatusCodes.Status404NotFound;
+                await context.Response.WriteAsJsonAsync(new { Success = false, Error = notFoundEx.Message });
+                break;
+            case JwtUnauthorizedException unauthorizedEx:
+                context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                await context.Response.WriteAsJsonAsync(new { Success = false, Error = unauthorizedEx.Message });
+                break;
+            default:
+                context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+                await context.Response.WriteAsJsonAsync(new { Success = false, Error = "Internal server error" });
+                break;
+        }
+    });
+});
 
 
 app.UseHttpsRedirection();

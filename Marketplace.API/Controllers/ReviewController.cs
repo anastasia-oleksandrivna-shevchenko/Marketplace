@@ -1,5 +1,6 @@
 ﻿using Marketplace.BBL.DTO.Review;
 using Marketplace.BBL.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 
@@ -54,22 +55,18 @@ public class ReviewController : ControllerBase
         return Ok(reviews);
     }
 
+    [Authorize]
     [HttpPost("create")]
     public async Task<IActionResult> Create([FromBody] CreateReviewDto dto)
     {
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
-        
         var review = await _service.CreateReviewAsync(dto);
         return CreatedAtAction(nameof(GetById), new { id = review.ReviewId }, review);
     }
 
+    [Authorize]
     [HttpPut("update")]
     public async Task<IActionResult> Update([FromBody] UpdateReviewDto dto)
     {
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
-
         var existing = await _service.GetReviewByIdAsync(dto.ReviewId);
         if (existing == null)
             return NotFound(new { message = $"Review with id {dto.ReviewId} not found." });
@@ -78,6 +75,7 @@ public class ReviewController : ControllerBase
         return NoContent();
     }
 
+    [Authorize]
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {

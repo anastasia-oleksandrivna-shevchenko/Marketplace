@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Marketplace.BBL.DTO.Product;
+using Marketplace.BBL.Exceptions;
 using Marketplace.BBL.Services.Interfaces;
 using Marketplace.DAL.Entities;
 using Marketplace.DAL.Entities.HelpModels;
@@ -30,8 +31,9 @@ public class ProductService : IProductService
     public async Task<ProductDto> GetProductByIdAsync(int id)
     {
         var product = await _unitOfWork.ProductRepository.FindByIdAsync(id);
-        if (product == null) 
-            throw new Exception("Product not found");
+        if (product == null)
+            throw new NotFoundException($"Product with ID {id} not found");
+        
         return _mapper.Map<ProductDto>(product);
     }
     
@@ -46,8 +48,8 @@ public class ProductService : IProductService
     public async Task UpdateProductAsync(UpdateProductDto dto)
     {
         var product = await _unitOfWork.ProductRepository.FindByIdAsync(dto.ProductId);
-        if (product == null) 
-            throw new Exception("Product not found");
+        if (product == null)
+            throw new NotFoundException($"Product with ID {dto.ProductId} not found");
 
         product.Name = dto.Name ?? product.Name;
         product.Description = dto.Description ?? product.Description;
@@ -62,8 +64,8 @@ public class ProductService : IProductService
     public async Task DeleteProductAsync(int id)
     {
         var product = await _unitOfWork.ProductRepository.FindByIdAsync(id);
-        if (product == null) 
-            throw new Exception("Product not found");
+        if (product == null)
+            throw new NotFoundException($"Product with ID {id} not found");
 
         _unitOfWork.ProductRepository.Delete(product);
         await _unitOfWork.SaveAsync();

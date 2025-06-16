@@ -27,10 +27,10 @@ public class AuthController : ControllerBase
     }
     
     [HttpPost("register")]
-    public async Task<IActionResult> Register(CreateUserDto model)
+    public async Task<IActionResult> Register([FromBody] CreateUserDto model)
     {
-        var (success, error) = await _authService.RegisterUserAsync(model);
-        return success ? Ok("User is created!") : BadRequest(error);
+        await _authService.RegisterUserAsync(model);
+        return Ok(new { Success = true, Error = (string)null });
     }
 
     [HttpPost("login")]
@@ -41,7 +41,7 @@ public class AuthController : ControllerBase
                    ?? await _userManager.Users.FirstOrDefaultAsync(u => u.PhoneNumber == model.Identifier);
 
         if (user == null || !await _userManager.CheckPasswordAsync(user, model.Password))
-            return Unauthorized("Incorrect credentials!");
+            return Unauthorized(new { message = "Incorrect credentials!" });
 
         var token = await _jwtService.GenerateToken(user);
         return Ok(new { token });

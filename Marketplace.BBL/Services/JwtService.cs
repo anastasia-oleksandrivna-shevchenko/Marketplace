@@ -1,6 +1,7 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Marketplace.BBL.Exceptions;
 using Marketplace.BBL.Services.Interfaces;
 using Marketplace.DAL.Entities;
 using Microsoft.AspNetCore.Identity;
@@ -23,7 +24,22 @@ public class JwtService : IJwtService
     public async Task<string> GenerateToken(User user)
     {
         var jwtSettings = _configuration.GetSection("Jwt");
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Secret"]));
+        
+        var secret = jwtSettings["Secret"];
+        if (string.IsNullOrEmpty(secret))
+            throw new JwtUnauthorizedException("JWT Secret key is missing in configuration.");
+        
+        var issuer = jwtSettings["Issuer"];
+        var audience = jwtSettings["Audience"];
+        var expirationStr = jwtSettings["ExpirationMinutes"];
+        
+        if (string.IsNullOrEmpty(issuer) || string.IsNullOrEmpty(audience) || string.IsNullOrEmpty(expirationStr))
+            throw new JwtUnauthorizedException("JWT configuration is incomplete.");
+
+        if (!int.TryParse(expirationStr, out int expirationMinutes))
+            throw new JwtUnauthorizedException("JWT expiration time is invalid.");
+
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
         var claims = new List<Claim>
@@ -32,17 +48,18 @@ public class JwtService : IJwtService
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())
         };
-
+        
         var roles = await _userManager.GetRolesAsync(user);
         var role = roles.FirstOrDefault();
-        if (!string.IsNullOrEmpty(role))
-        {
-            claims.Add(new Claim(ClaimTypes.Role, role));
-        }
+        
+        if (string.IsNullOrEmpty(role))
+            throw new JwtUnauthorizedException("User does not have an assigned role.");
+        
+        claims.Add(new Claim(ClaimTypes.Role, role));
 
         var token = new JwtSecurityToken(
-            issuer: jwtSettings["Issuer"],
-            audience: jwtSettings["Audience"],
+            issuer: issuer,
+            audience: audience,
             claims: claims,
             expires: DateTime.UtcNow.AddMinutes(Convert.ToInt32(jwtSettings["ExpirationMinutes"])),
             signingCredentials: creds

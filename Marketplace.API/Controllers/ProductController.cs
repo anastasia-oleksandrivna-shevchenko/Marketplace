@@ -1,6 +1,7 @@
 ﻿using Marketplace.BBL.DTO.Product;
 using Marketplace.BBL.Services.Interfaces;
 using Marketplace.DAL.Entities.HelpModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 
@@ -32,22 +33,18 @@ public class ProductController : ControllerBase
         return Ok(products);
     }
 
+    [Authorize(Roles = "Admin, Seller")]
     [HttpPost("create")]
     public async Task<IActionResult> Create([FromBody]CreateProductDto dto)
     {
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
-        
         var products = await _service.CreateProductAsync(dto);
         return CreatedAtAction(nameof(GetById), new { id = products.ProductId }, products);
     }
 
+    [Authorize(Roles = "Admin, Seller")]
     [HttpPut("update")]
     public async Task<IActionResult> Update([FromBody] UpdateProductDto dto)
     {
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
-
         var existing = await _service.GetProductByIdAsync(dto.ProductId);
         if (existing == null)
             return NotFound(new { message = $"Product with id {dto.ProductId} not found." });
@@ -56,6 +53,7 @@ public class ProductController : ControllerBase
         return NoContent();
     }
 
+    [Authorize(Roles = "Admin, Seller")]
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {

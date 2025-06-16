@@ -1,9 +1,11 @@
 ﻿using Marketplace.BBL.DTO.Category;
 using Marketplace.BBL.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Marketplace.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("api/[controller]")]
 public class CategoryController : ControllerBase
@@ -31,22 +33,18 @@ public class CategoryController : ControllerBase
         return Ok(category);
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpPost("create")]
     public async Task<IActionResult> Create([FromBody] CreateCategoryDto dto)
     {
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
-        
         var category = await _service.CreateCategoryAsync(dto);
         return CreatedAtAction(nameof(GetById), new { id = category.CategoryId}, category);
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpPut("update")]
     public async Task<IActionResult> Update([FromBody] UpdateCategoryDto dto)
     {
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
-        
         var existingCategory = await _service.GetCategoryByIdAsync(dto.CategoryId);
         if (existingCategory == null)
             return NotFound(new { message = $"Category with id {dto.CategoryId} not found." });
@@ -55,6 +53,7 @@ public class CategoryController : ControllerBase
         return NoContent();
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
@@ -66,6 +65,7 @@ public class CategoryController : ControllerBase
         return NoContent();
     }
 
+    [AllowAnonymous]
     [HttpGet("all")]
     public async Task<IActionResult> GetAll()
     {

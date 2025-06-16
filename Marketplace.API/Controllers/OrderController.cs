@@ -1,10 +1,12 @@
 ﻿using Marketplace.BBL.DTO.Order;
 using Marketplace.BBL.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 
 namespace Marketplace.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("api/[controller]")]
 public class OrderController : ControllerBase
@@ -48,19 +50,14 @@ public class OrderController : ControllerBase
     [HttpPost("create")]
     public async Task<IActionResult> Create([FromBody]CreateOrderDto dto)
     {
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
-        
         var order = await _service.CreateOrderAsync(dto);
         return CreatedAtAction(nameof(GetById), new { id = order.OrderId }, order);
     }
 
+    [Authorize(Roles = "Admin, Seller")]
     [HttpPut("update")]
     public async Task<IActionResult> Update([FromBody]UpdateOrderStatusDto dto)
     {
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
-
         var existing = await _service.GetOrderByIdAsync(dto.OrderId);
         if (existing == null)
             return NotFound(new { message = $"Order with id {dto.OrderId} not found." });
@@ -69,6 +66,7 @@ public class OrderController : ControllerBase
         return NoContent();
     }
 
+    [Authorize(Roles = "Admin, Seller")]
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {

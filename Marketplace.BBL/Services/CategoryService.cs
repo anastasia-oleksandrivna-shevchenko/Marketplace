@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Marketplace.BBL.DTO.Category;
+using Marketplace.BBL.Exceptions;
 using Marketplace.BBL.Services.Interfaces;
 using Marketplace.DAL.Entities;
 using Marketplace.DAL.Repositories.Interfaces;
@@ -29,7 +30,7 @@ public class CategoryService : ICategoryService
     {
         var category = await _unitOfWork.CategoryRepository.FindByIdAsync(id);
         if (category == null)
-            throw new Exception("Category not found");
+            throw new NotFoundException($"Category with id {id} not found.");
 
         return _mapper.Map<CategoryDto>(category);
     }
@@ -50,7 +51,7 @@ public class CategoryService : ICategoryService
     {
         var category = await _unitOfWork.CategoryRepository.FindByIdAsync(dto.CategoryId);
         if (category == null)
-            throw new Exception("Category not found");
+            throw new NotFoundException($"Category with id {dto.CategoryId} not found.");
 
         category.Name = dto.Name ?? category.Name;
 
@@ -61,7 +62,7 @@ public class CategoryService : ICategoryService
     {
         var category = await _unitOfWork.CategoryRepository.FindByIdAsync(id);
         if (category == null)
-            throw new Exception("Category not found");
+            throw new NotFoundException($"Category with id {id} not found.");
 
         _unitOfWork.CategoryRepository.Delete(category);
         await _unitOfWork.SaveAsync();

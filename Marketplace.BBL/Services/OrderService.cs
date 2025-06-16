@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Marketplace.BBL.DTO.Order;
+using Marketplace.BBL.Exceptions;
 using Marketplace.BBL.Services.Interfaces;
 using Marketplace.DAL.Entities;
 using Marketplace.DAL.Repositories.Interfaces;
@@ -28,7 +29,9 @@ public class OrderService : IOrderService
     public async Task<OrderDto> GetOrderByIdAsync(int id)
     {
         var order = await _unitOfWork.OrderRepository.FindByIdAsync(id);
-        if (order == null) throw new Exception("Order not found");
+        if (order == null) 
+            throw new NotFoundException($"Order with ID {id} not found");
+        
         return _mapper.Map<OrderDto>(order);
     }
 
@@ -53,7 +56,8 @@ public class OrderService : IOrderService
     public async Task UpdateOrderAsync(UpdateOrderStatusDto dto)
     {
         var order = await _unitOfWork.OrderRepository.FindByIdAsync(dto.OrderId);
-        if (order == null) throw new Exception("Order not found");
+        if (order == null) 
+            throw new NotFoundException($"Order with ID {dto.OrderId} not found");
 
         order.Status = dto.Status ?? order.Status;
         await _unitOfWork.SaveAsync();
@@ -63,7 +67,7 @@ public class OrderService : IOrderService
     {
         var order = await _unitOfWork.OrderRepository.FindByIdAsync(id);
         if (order == null) 
-            throw new Exception("Order not found");
+            throw new NotFoundException($"Order with ID {id} not found");
 
         _unitOfWork.OrderRepository.Delete(order);
         await _unitOfWork.SaveAsync();
