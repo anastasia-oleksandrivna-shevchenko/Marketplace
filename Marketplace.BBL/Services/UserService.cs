@@ -1,9 +1,14 @@
-﻿using Marketplace.BBL.Services.Interfaces;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+using Marketplace.BBL.Services.Interfaces;
 using Marketplace.DAL.Repositories.Interfaces;
 using AutoMapper;
 using Marketplace.BBL.DTO.User;
 using Marketplace.DAL.Entities;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Marketplace.BBL.Services;
 
@@ -19,27 +24,7 @@ public class UserService : IUserService
         _mapper = mapper;
         _passwordHasher = new PasswordHasher<User>();
     }
-
-    public async Task<UserDto> RegisterUserAsync(CreateUserDto dto)
-    {
-        var existsEmail = await _unitOfWork.UserRepository.CheckUserExistsByEmailAsync(dto.Email);
-        if (existsEmail)
-            throw new Exception("Email already in use");
-        
-        var existsUsername = await _unitOfWork.UserRepository.CheckUserExistsByUsernameAsync(dto.Username);
-        if (existsUsername)
-            throw new Exception("Username already in use");
-        
-        var user = _mapper.Map<User>(dto);
-        user.PasswordHash = _passwordHasher.HashPassword(user, dto.Password);
-        
-        await _unitOfWork.UserRepository.CreateAsync(user);
-        await _unitOfWork.SaveAsync();
-        
-        return _mapper.Map<UserDto>(user);
-
-    }
-
+    
     public async Task<IEnumerable<UserDto>> GetAllUsersAsync()
     {
         var users = await _unitOfWork.UserRepository.FindAllAsync();
@@ -151,5 +136,4 @@ public class UserService : IUserService
         _unitOfWork.UserRepository.Delete(user);
         await _unitOfWork.SaveAsync();
     }
-    
 }

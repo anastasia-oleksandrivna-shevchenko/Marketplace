@@ -10,30 +10,31 @@ public class UserRepository: GenericRepository<User>, IUserRepository
 {
     public UserRepository(MarketplaceDbContext context) : base(context) {}
     
-    public UserManager<User> _userManager { get; }
+    private readonly UserManager<User> _userManager;
+
+    public UserRepository(MarketplaceDbContext context, UserManager<User> userManager) : base(context)
+    {
+        _userManager = userManager;
+    }
 
     public async Task<User?> FindUserByUsernameAsync(string username)
     {
-        return await _dbSet
-            .FirstOrDefaultAsync(u => u.UserName == username);
+        return await _userManager.FindByNameAsync(username);
     }
     
     public async Task<User?> FindUserByEmailAsync(string email)
     {
-        return await _dbSet
-            .FirstOrDefaultAsync(u => u.Email == email);
+        return await _userManager.FindByEmailAsync(email);
     }
 
     public async Task<bool> CheckUserExistsByUsernameAsync(string username)
     {
-        return await _dbSet
-            .AnyAsync(u => u.UserName == username);
+        return await _userManager.FindByNameAsync(username) != null;
     }
 
     public async Task<bool> CheckUserExistsByEmailAsync(string email)
     {
-        return await _dbSet
-            .AnyAsync(u => u.Email == email);
+        return await _userManager.FindByEmailAsync(email) != null;
     }
 
     public async Task<IEnumerable<User>> FindUsersByRoleAsync(string role)

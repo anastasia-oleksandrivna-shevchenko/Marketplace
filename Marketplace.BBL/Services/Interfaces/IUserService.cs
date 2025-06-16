@@ -4,7 +4,6 @@ namespace Marketplace.BBL.Services.Interfaces;
 
 public interface IUserService
 {
-    Task<UserDto> RegisterUserAsync(CreateUserDto dto);
     Task<UserDto> GetUserByIdAsync(int userId);
     Task<IEnumerable<UserDto>> GetAllUsersAsync();
     Task<UserDto?> GetUserByUsernameAsync(string username);
