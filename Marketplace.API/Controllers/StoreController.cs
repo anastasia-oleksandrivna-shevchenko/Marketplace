@@ -18,6 +18,9 @@ public class StoreController : ControllerBase
     } 
 
     [HttpGet("{id}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetById(int id)
     {
         var store = await _service.GetStoreByIdAsync(id);
@@ -27,6 +30,9 @@ public class StoreController : ControllerBase
     }
 
     [HttpGet("by-name/{name}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetByName(string name)
     {
         var stores = await _service.GetStoresByNameAsync(name);
@@ -36,6 +42,8 @@ public class StoreController : ControllerBase
     }
     
     [HttpGet("all")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetAll()
     {
         var stores = await _service.GetAllStoresAsync();
@@ -43,6 +51,8 @@ public class StoreController : ControllerBase
     }
     
     [HttpGet("sorted-by-rating/{sort}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetAllSortedByRating(bool sortAsc)
     {
         var stores = await _service.GetStoresSortedByRatingAsync(sortAsc);
@@ -50,6 +60,8 @@ public class StoreController : ControllerBase
     }
     
     [HttpGet("sorted-by-orders-count/{sort}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetAllSortedByOrdersCount(bool sortAsc)
     {
         var stores = await _service.GetStoresSortedByOrdersCountAsync(sortAsc);
@@ -58,6 +70,10 @@ public class StoreController : ControllerBase
 
     [Authorize(Roles = "Admin, Seller")]
     [HttpPost("create")]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> Create([FromBody] CreateStoreDto dto)
     {
         var store = await _service.CreateStoreAsync(dto);
@@ -66,6 +82,11 @@ public class StoreController : ControllerBase
 
     [Authorize(Roles = "Admin, Seller")]
     [HttpPut("update")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> Update([FromBody] UpdateStoreDto dto)
     {
         var existing = await _service.GetStoreByIdAsync(dto.StoreId);
@@ -78,6 +99,9 @@ public class StoreController : ControllerBase
 
     [Authorize(Roles = "Admin, Seller")]
     [HttpDelete("{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> Delete(int id)
     {
         var existing = await _service.GetStoreByIdAsync(id);

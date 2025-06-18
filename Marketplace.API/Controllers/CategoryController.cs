@@ -18,6 +18,8 @@ public class CategoryController : ControllerBase
     }
 
     [HttpGet("sorted-by-name")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> SortByName([FromQuery] bool ascending)
     {
         var categories = await _service.GetCategoriesSortedByNameAsync(ascending);
@@ -25,6 +27,9 @@ public class CategoryController : ControllerBase
     }
 
     [HttpGet("{id}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetById(int id)
     {
         var category = await _service.GetCategoryByIdAsync(id);
@@ -35,6 +40,10 @@ public class CategoryController : ControllerBase
 
     [Authorize(Roles = "Admin")]
     [HttpPost("create")]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> Create([FromBody] CreateCategoryDto dto)
     {
         var category = await _service.CreateCategoryAsync(dto);
@@ -43,6 +52,11 @@ public class CategoryController : ControllerBase
 
     [Authorize(Roles = "Admin")]
     [HttpPut("update")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> Update([FromBody] UpdateCategoryDto dto)
     {
         var existingCategory = await _service.GetCategoryByIdAsync(dto.CategoryId);
@@ -55,6 +69,9 @@ public class CategoryController : ControllerBase
 
     [Authorize(Roles = "Admin")]
     [HttpDelete("{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> Delete(int id)
     {
         var existingCategory = await _service.GetCategoryByIdAsync(id);
@@ -67,6 +84,8 @@ public class CategoryController : ControllerBase
 
     [AllowAnonymous]
     [HttpGet("all")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetAll()
     {
         var categories = await _service.GetAllCategoriesAsync();

@@ -15,7 +15,10 @@ public class OrderItemController : ControllerBase
     public OrderItemController(IOrderItemService service) => _service = service;
 
     [HttpGet("by-order/{orderId}")]
-    public async Task<IActionResult> ByOrder(int orderId)
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> ByOrderId(int orderId)
     {
         var orderitems = await _service.GetItemsByOrderIdAsync(orderId);
         if (orderitems.IsNullOrEmpty())
@@ -25,6 +28,9 @@ public class OrderItemController : ControllerBase
     }
 
     [HttpGet("{id}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetById(int id)
     {
         var orderitem = await _service.GetOrderItemByIdAsync(id);
@@ -35,6 +41,8 @@ public class OrderItemController : ControllerBase
     }
     
     [HttpGet("all")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetAll()
     {
         var orderitems = await _service.GetAllOrderItemsAsync();
@@ -42,6 +50,10 @@ public class OrderItemController : ControllerBase
     }
 
     [HttpPost("create")]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> Create([FromBody]CreateOrderItemDto dto)
     {
         if (!ModelState.IsValid)
@@ -52,6 +64,11 @@ public class OrderItemController : ControllerBase
     }
 
     [HttpPut("update")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> Update([FromBody]UpdateOrderItemDto dto)
     {
         if (!ModelState.IsValid)
@@ -66,6 +83,9 @@ public class OrderItemController : ControllerBase
     }
 
     [HttpDelete("{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> Delete(int id)
     {
         var existing = await _service.GetOrderItemByIdAsync(id);

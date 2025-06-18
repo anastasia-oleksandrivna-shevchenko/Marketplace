@@ -18,8 +18,17 @@ public class UserController : ControllerBase
         _service = userService;
     }
     
+    private int GetUserId()
+    {
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        return int.TryParse(userId, out var id) ? id : throw new UnauthorizedAccessException("Invalid or missing user ID in token.");
+    }
+    
     [Authorize(Roles = "Admin")]
     [HttpGet("{id}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetUserById(int id)
     {
         var user = await _service.GetUserByIdAsync(id);
@@ -28,14 +37,10 @@ public class UserController : ControllerBase
         return Ok(user);
     }
     
-    private int GetUserId()
-    {
-        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        return int.TryParse(userId, out var id) ? id : throw new UnauthorizedAccessException("Invalid or missing user ID in token.");
-    }
-
     [Authorize(Roles = "Admin")]
     [HttpGet("all")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetAll()
     {
         var users = await _service.GetAllUsersAsync();
@@ -43,6 +48,11 @@ public class UserController : ControllerBase
     }
     
     [HttpPut("update")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> Update([FromBody] UpdateUserDto dto)
     {
         dto.UserId = GetUserId();
@@ -52,16 +62,21 @@ public class UserController : ControllerBase
     }
     
     [HttpDelete("delete")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> Delete()
     {
         var userId = GetUserId();
         await _service.DeleteUserAsync(userId); 
         return Ok(new { message = "User account deleted successfully." });
     }
-
     
     [HttpDelete("{id}")]
     [Authorize(Roles = "Admin")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> Delete(int id)
     {
         await _service.DeleteUserAsync(id); 
@@ -70,6 +85,9 @@ public class UserController : ControllerBase
     
     [HttpGet("by-username/{username}")]
     [Authorize(Roles = "Admin")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetByUsername(string username)
     {
         var user = await _service.GetUserByUsernameAsync(username);
@@ -80,6 +98,9 @@ public class UserController : ControllerBase
     
     [HttpGet("by-email/{email}")]
     [Authorize(Roles = "Admin")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetByEmail(string email)
     {
         var user = await _service.GetUserByEmailAsync(email);
@@ -90,6 +111,9 @@ public class UserController : ControllerBase
     
     [HttpGet("by-role/{role}")]
     [Authorize(Roles = "Admin")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetUsersByRole(string role)
     {
         var users = await _service.GetUsersByRoleAsync(role);

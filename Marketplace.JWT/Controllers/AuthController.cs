@@ -27,6 +27,9 @@ public class AuthController : ControllerBase
     }
     
     [HttpPost("register")]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> Register([FromBody] CreateUserDto model)
     {
         await _jwtService.RegisterUserAsync(model);
@@ -34,6 +37,9 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("login")]
+    [ProducesResponseType(typeof(LoginResponseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> Login([FromBody] LoginRequestDto model)
     {
         var loginModel = await _jwtService.LoginAsync(model);
@@ -42,6 +48,9 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("refresh-token")]
+    [ProducesResponseType(typeof(RefreshTokenResponseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> RefreshToken()
     {
         var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
@@ -52,6 +61,9 @@ public class AuthController : ControllerBase
     }
 
     [HttpGet("confirm-email")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> ConfirmEmail([FromQuery] string userId, [FromQuery] string token)
     {
         var result = await _jwtService.ConfirmEmailAsync(userId, token);
@@ -61,8 +73,23 @@ public class AuthController : ControllerBase
 
         return Ok("Email successfully confirmed.");
     }
-
+    
+    [HttpPost("forgot-password")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequestDto dto)
+    {
+        var result = await _jwtService.ForgotPasswordAsync(dto.Email);
+        if (!result)
+            return NotFound("User not found");
+        return Ok("Reset code sent to email.");
+    }
+    
     [HttpPost("reset-password")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequestDto model)
     {
         var result = await _jwtService.ResetPasswordAsync(model.Email, model.Token, model.NewPassword);
@@ -73,6 +100,8 @@ public class AuthController : ControllerBase
 
     [Authorize]
     [HttpPost("logout")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> Logout()
     {
         await _jwtService.LogoutAsync();

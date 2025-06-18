@@ -18,6 +18,9 @@ public class ProductController : ControllerBase
     }
 
     [HttpGet("{id}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetById(int id)
     {
         var product = await _service.GetProductByIdAsync(id);
@@ -27,6 +30,8 @@ public class ProductController : ControllerBase
     }
 
     [HttpGet("all")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetAll()
     {
         var products = await _service.GetAllProductsAsync();
@@ -35,6 +40,10 @@ public class ProductController : ControllerBase
 
     [Authorize(Roles = "Admin, Seller")]
     [HttpPost("create")]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> Create([FromBody]CreateProductDto dto)
     {
         var products = await _service.CreateProductAsync(dto);
@@ -43,6 +52,11 @@ public class ProductController : ControllerBase
 
     [Authorize(Roles = "Admin, Seller")]
     [HttpPut("update")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> Update([FromBody] UpdateProductDto dto)
     {
         var existing = await _service.GetProductByIdAsync(dto.ProductId);
@@ -55,6 +69,9 @@ public class ProductController : ControllerBase
 
     [Authorize(Roles = "Admin, Seller")]
     [HttpDelete("{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> Delete(int id)
     {
         var existing = await _service.GetProductByIdAsync(id);
@@ -66,6 +83,9 @@ public class ProductController : ControllerBase
     }
 
     [HttpGet("category/{categoryId}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> ByCategory(int categoryId)
     {
         var products = await _service.GetProductsByCategoryIdAsync(categoryId);
@@ -76,6 +96,9 @@ public class ProductController : ControllerBase
     }
 
     [HttpGet("store/{storeId}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> ByStore(int storeId)
     {
         var products = await _service.GetProductsByStoreIdAsync(storeId);
@@ -85,6 +108,9 @@ public class ProductController : ControllerBase
     }
 
     [HttpGet("by-name/{name}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> ByName([FromQuery] string name)
     {
         var products = await _service.GetProductsByNameAsync(name);
@@ -95,6 +121,8 @@ public class ProductController : ControllerBase
     }
 
     [HttpGet("range-{min}/{max}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> ByPriceRange([FromQuery] decimal min, [FromQuery] decimal max)
     {
         var products = await _service.GetProductsByPriceRangeAsync(min, max);
@@ -105,6 +133,8 @@ public class ProductController : ControllerBase
     }
 
     [HttpGet("sort-by-price")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> SortByPrice([FromQuery] bool ascending)
     {
         var products = await _service.GetProductsSortedByPriceAsync(ascending);
@@ -112,6 +142,8 @@ public class ProductController : ControllerBase
     }
 
     [HttpGet("sort-by-rating")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> SortByRating([FromQuery] bool ascending)
     {
         var products = await _service.GetProductsSortedByRatingAsync(ascending);
@@ -119,6 +151,8 @@ public class ProductController : ControllerBase
     }
     
     [HttpGet("paginated")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetPaginated([FromQuery] ProductParameters parameters, CancellationToken cancellationToken)
     {
         if (parameters.PageNumber <= 0)
