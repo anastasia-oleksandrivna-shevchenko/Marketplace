@@ -12,6 +12,6 @@ public interface IUnitOfWork : IDisposable
     IStoreRepository StoreRepository { get; }
     IUserRepository UserRepository { get; }
     
-    Task<int> SaveAsync();
+    Task<int> SaveAsync(CancellationToken cancellationToken = default);
     
 }

@@ -9,12 +9,12 @@ public class OrderItemRepository: GenericRepository<OrderItem>, IOrderItemReposi
 {
     public OrderItemRepository(MarketplaceDbContext context) : base(context) {}
 
-    public async Task<IEnumerable<OrderItem>> FindItemsByOrderIdAsync(int orderId)
+    public async Task<IEnumerable<OrderItem>> FindItemsByOrderIdAsync(int orderId, CancellationToken cancellationToken = default)
     {
         return await _dbSet
             .Where(o => o.OrderId == orderId)
             .Include(oi => oi.Product)
-            .ToListAsync();
+            .ToListAsync(cancellationToken);
     }
     
 }

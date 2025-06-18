@@ -20,9 +20,9 @@ public class ReviewController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> GetByProduct(int productId)
+    public async Task<IActionResult> GetByProduct(int productId, CancellationToken cancellationToken)
     {
-        var reviews = await _service.GetReviewsByProductIdAsync(productId);
+        var reviews = await _service.GetReviewsByProductIdAsync(productId, cancellationToken);
         if (reviews.IsNullOrEmpty())
             return NotFound(new { message = $"Reviews with product id {productId} not found." });
         return Ok(reviews);
@@ -31,18 +31,18 @@ public class ReviewController : ControllerBase
     [HttpGet("sort-by-rating")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> SortByRating([FromQuery] bool ascending)
+    public async Task<IActionResult> SortByRating([FromQuery] bool ascending, CancellationToken cancellationToken)
     {
-        var reviews = await _service.GetReviewsSortedByRatingAsync(ascending);
+        var reviews = await _service.GetReviewsSortedByRatingAsync(ascending,cancellationToken);
         return Ok(reviews);
     }
 
     [HttpGet("sort-by-date")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> SortByDate([FromQuery] bool ascending)
+    public async Task<IActionResult> SortByDate([FromQuery] bool ascending, CancellationToken cancellationToken)
     {
-        var reviews = await _service.GetReviewsSortedByDateAsync(ascending);
+        var reviews = await _service.GetReviewsSortedByDateAsync(ascending, cancellationToken);
         return Ok(reviews);
     }
 
@@ -50,9 +50,9 @@ public class ReviewController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> GetById(int id)
+    public async Task<IActionResult> GetById(int id, CancellationToken cancellationToken)
     {
-        var review = await _service.GetReviewByIdAsync(id);
+        var review = await _service.GetReviewByIdAsync(id, cancellationToken);
         if (review == null)
             return NotFound(new { message = $"Review with id {id} not found." });
         return Ok(review);
@@ -61,9 +61,9 @@ public class ReviewController : ControllerBase
     [HttpGet("all")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> GetAll()
+    public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
     {
-        var reviews = await _service.GetAllReviewsAsync();
+        var reviews = await _service.GetAllReviewsAsync(cancellationToken);
         return Ok(reviews);
     }
 
@@ -73,9 +73,9 @@ public class ReviewController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> Create([FromBody] CreateReviewDto dto)
+    public async Task<IActionResult> Create([FromBody] CreateReviewDto dto, CancellationToken cancellationToken)
     {
-        var review = await _service.CreateReviewAsync(dto);
+        var review = await _service.CreateReviewAsync(dto, cancellationToken);
         return CreatedAtAction(nameof(GetById), new { id = review.ReviewId }, review);
     }
 
@@ -86,13 +86,13 @@ public class ReviewController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> Update([FromBody] UpdateReviewDto dto)
+    public async Task<IActionResult> Update([FromBody] UpdateReviewDto dto, CancellationToken cancellationToken)
     {
-        var existing = await _service.GetReviewByIdAsync(dto.ReviewId);
+        var existing = await _service.GetReviewByIdAsync(dto.ReviewId, cancellationToken);
         if (existing == null)
             return NotFound(new { message = $"Review with id {dto.ReviewId} not found." });
         
-        await _service.UpdateReviewAsync(dto); 
+        await _service.UpdateReviewAsync(dto, cancellationToken); 
         return NoContent();
     }
 
@@ -101,13 +101,13 @@ public class ReviewController : ControllerBase
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> Delete(int id)
+    public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
     {
-        var existing = await _service.GetReviewByIdAsync(id);
+        var existing = await _service.GetReviewByIdAsync(id, cancellationToken);
         if (existing == null)
             return NotFound(new { message = $"Review with id {id} not found." });
 
-        await _service.DeleteReviewAsync(id); 
+        await _service.DeleteReviewAsync(id, cancellationToken); 
         return NoContent();
     }
 }

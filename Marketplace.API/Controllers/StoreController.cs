@@ -21,9 +21,9 @@ public class StoreController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> GetById(int id)
+    public async Task<IActionResult> GetById(int id, CancellationToken cancellationToken)
     {
-        var store = await _service.GetStoreByIdAsync(id);
+        var store = await _service.GetStoreByIdAsync(id, cancellationToken);
         if (store == null)
             return NotFound(new { message = $"Store with id {id} not found." });
         return Ok(store);
@@ -33,9 +33,9 @@ public class StoreController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> GetByName(string name)
+    public async Task<IActionResult> GetByName(string name, CancellationToken cancellationToken)
     {
-        var stores = await _service.GetStoresByNameAsync(name);
+        var stores = await _service.GetStoresByNameAsync(name, cancellationToken);
         if (stores.IsNullOrEmpty())
             return NotFound(new { message = $"Store with name {name} not found." });
         return Ok(stores);
@@ -44,27 +44,27 @@ public class StoreController : ControllerBase
     [HttpGet("all")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> GetAll()
+    public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
     {
-        var stores = await _service.GetAllStoresAsync();
+        var stores = await _service.GetAllStoresAsync(cancellationToken);
         return Ok(stores);
     }
     
     [HttpGet("sorted-by-rating/{sort}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> GetAllSortedByRating(bool sortAsc)
+    public async Task<IActionResult> GetAllSortedByRating(bool sortAsc, CancellationToken cancellationToken)
     {
-        var stores = await _service.GetStoresSortedByRatingAsync(sortAsc);
+        var stores = await _service.GetStoresSortedByRatingAsync(sortAsc, cancellationToken);
         return Ok(stores);
     }
     
     [HttpGet("sorted-by-orders-count/{sort}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> GetAllSortedByOrdersCount(bool sortAsc)
+    public async Task<IActionResult> GetAllSortedByOrdersCount(bool sortAsc, CancellationToken cancellationToken)
     {
-        var stores = await _service.GetStoresSortedByOrdersCountAsync(sortAsc);
+        var stores = await _service.GetStoresSortedByOrdersCountAsync(sortAsc, cancellationToken);
         return Ok(stores);
     }
 
@@ -74,9 +74,9 @@ public class StoreController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> Create([FromBody] CreateStoreDto dto)
+    public async Task<IActionResult> Create([FromBody] CreateStoreDto dto, CancellationToken cancellationToken)
     {
-        var store = await _service.CreateStoreAsync(dto);
+        var store = await _service.CreateStoreAsync(dto, cancellationToken);
         return CreatedAtAction(nameof(GetById), new { id = store.StoreId }, store);
     }
 
@@ -87,13 +87,13 @@ public class StoreController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> Update([FromBody] UpdateStoreDto dto)
+    public async Task<IActionResult> Update([FromBody] UpdateStoreDto dto, CancellationToken cancellationToken)
     {
-        var existing = await _service.GetStoreByIdAsync(dto.StoreId);
+        var existing = await _service.GetStoreByIdAsync(dto.StoreId, cancellationToken);
         if (existing == null)
             return NotFound(new { message = $"Store with id {dto.StoreId} not found." });
         
-        await _service.UpdateStoreAsync(dto); 
+        await _service.UpdateStoreAsync(dto, cancellationToken); 
         return NoContent();
     }
 
@@ -102,13 +102,13 @@ public class StoreController : ControllerBase
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> Delete(int id)
+    public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
     {
-        var existing = await _service.GetStoreByIdAsync(id);
+        var existing = await _service.GetStoreByIdAsync(id, cancellationToken);
         if (existing == null)
             return NotFound(new { message = $"Store with id {id} not found." });
         
-        await _service.DeleteStoreAsync(id); 
+        await _service.DeleteStoreAsync(id, cancellationToken); 
         return NoContent();
     }
 }

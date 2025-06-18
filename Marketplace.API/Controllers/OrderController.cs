@@ -22,9 +22,9 @@ public class OrderController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> GetByCustomer(int customerId)
+    public async Task<IActionResult> GetByCustomer(int customerId, CancellationToken cancellationToken)
     {
-        var orders = await _service.GetOrdersByCustomerIdAsync(customerId);
+        var orders = await _service.GetOrdersByCustomerIdAsync(customerId, cancellationToken);
         if(orders.IsNullOrEmpty())
             return NotFound(new { message = $"Orders with customer id {customerId} not found." });
         
@@ -35,9 +35,9 @@ public class OrderController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> GetByStore(int storeId)
+    public async Task<IActionResult> GetByStore(int storeId, CancellationToken cancellationToken)
     {
-        var orders = await _service.GetOrdersByStoreIdAsync(storeId);
+        var orders = await _service.GetOrdersByStoreIdAsync(storeId, cancellationToken);
         if(orders.IsNullOrEmpty())
             return NotFound(new { message = $"Orders with customer id {storeId} not found." });
         
@@ -48,9 +48,9 @@ public class OrderController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> GetById(int id)
+    public async Task<IActionResult> GetById(int id, CancellationToken cancellationToken)
     {
-        var order = await _service.GetOrderByIdAsync(id);
+        var order = await _service.GetOrderByIdAsync(id, cancellationToken);
         if (order == null)
             return NotFound(new { message = $"Order with id {id} not found." });
         return Ok(order);
@@ -61,9 +61,9 @@ public class OrderController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> Create([FromBody]CreateOrderDto dto)
+    public async Task<IActionResult> Create([FromBody]CreateOrderDto dto, CancellationToken cancellationToken)
     {
-        var order = await _service.CreateOrderAsync(dto);
+        var order = await _service.CreateOrderAsync(dto, cancellationToken);
         return CreatedAtAction(nameof(GetById), new { id = order.OrderId }, order);
     }
 
@@ -74,13 +74,13 @@ public class OrderController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> Update([FromBody]UpdateOrderStatusDto dto)
+    public async Task<IActionResult> Update([FromBody]UpdateOrderStatusDto dto, CancellationToken cancellationToken)
     {
-        var existing = await _service.GetOrderByIdAsync(dto.OrderId);
+        var existing = await _service.GetOrderByIdAsync(dto.OrderId, cancellationToken);
         if (existing == null)
             return NotFound(new { message = $"Order with id {dto.OrderId} not found." });
         
-        await _service.UpdateOrderAsync(dto); 
+        await _service.UpdateOrderAsync(dto, cancellationToken); 
         return NoContent();
     }
 
@@ -89,22 +89,22 @@ public class OrderController : ControllerBase
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> Delete(int id)
+    public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
     {
-        var existing = await _service.GetOrderByIdAsync(id);
+        var existing = await _service.GetOrderByIdAsync(id, cancellationToken);
         if (existing == null)
             return NotFound(new { message = $"Order with id {id} not found." });
 
-        await _service.DeleteOrderAsync(id); 
+        await _service.DeleteOrderAsync(id, cancellationToken); 
         return NoContent();
     }
 
     [HttpGet("all")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> GetAll()
+    public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
     {
-        var orders = await _service.GetAllOrdersAsync();
+        var orders = await _service.GetAllOrdersAsync(cancellationToken);
         return Ok(orders);
     }
 }

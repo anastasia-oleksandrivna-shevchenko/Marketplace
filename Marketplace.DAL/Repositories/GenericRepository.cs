@@ -15,14 +15,14 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
         _dbSet = context.Set<T>();
     }
     
-    public async Task<IEnumerable<T>> FindAllAsync() => await _dbSet.ToListAsync();
+    public async Task<IEnumerable<T>> FindAllAsync(CancellationToken cancellationToken = default) => await _dbSet.ToListAsync(cancellationToken);
     
-    public async Task<T> FindByIdAsync(int id) => await _dbSet.FindAsync(id);
+    public async Task<T?> FindByIdAsync(int id, CancellationToken cancellationToken = default) => await _dbSet.FindAsync(id, cancellationToken);
     
-    public async Task CreateAsync(T entity) => await _dbSet.AddAsync(entity);
+    public async Task CreateAsync(T entity, CancellationToken cancellationToken = default) => await _dbSet.AddAsync(entity, cancellationToken);
     
-    public void Update(T entity) => _dbSet.Update(entity);
+    public void Update(T entity, CancellationToken cancellationToken = default) => _dbSet.Update(entity);
     
-    public void Delete(T entity) => _dbSet.Remove(entity);
+    public void Delete(T entity, CancellationToken cancellationToken = default) => _dbSet.Remove(entity);
     
 }

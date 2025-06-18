@@ -18,9 +18,9 @@ public class OrderItemController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> ByOrderId(int orderId)
+    public async Task<IActionResult> ByOrderId(int orderId, CancellationToken cancellationToken)
     {
-        var orderitems = await _service.GetItemsByOrderIdAsync(orderId);
+        var orderitems = await _service.GetItemsByOrderIdAsync(orderId, cancellationToken);
         if (orderitems.IsNullOrEmpty())
             return NotFound(new { message = $"Order items with order id {orderId} not found." });
         
@@ -31,9 +31,9 @@ public class OrderItemController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> GetById(int id)
+    public async Task<IActionResult> GetById(int id, CancellationToken cancellationToken)
     {
-        var orderitem = await _service.GetOrderItemByIdAsync(id);
+        var orderitem = await _service.GetOrderItemByIdAsync(id, cancellationToken);
         if (orderitem == null)
             return NotFound(new { message = $"OrderItem with id {id} not found." });
         
@@ -43,9 +43,9 @@ public class OrderItemController : ControllerBase
     [HttpGet("all")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> GetAll()
+    public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
     {
-        var orderitems = await _service.GetAllOrderItemsAsync();
+        var orderitems = await _service.GetAllOrderItemsAsync(cancellationToken);
         return Ok(orderitems);
     }
 
@@ -54,12 +54,12 @@ public class OrderItemController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> Create([FromBody]CreateOrderItemDto dto)
+    public async Task<IActionResult> Create([FromBody]CreateOrderItemDto dto, CancellationToken cancellationToken)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
         
-        var orderitem = await _service.CreateOrderItemAsync(dto);
+        var orderitem = await _service.CreateOrderItemAsync(dto, cancellationToken);
         return CreatedAtAction(nameof(GetById), new { id = orderitem.OrderItemId }, orderitem);
     }
 
@@ -69,16 +69,16 @@ public class OrderItemController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> Update([FromBody]UpdateOrderItemDto dto)
+    public async Task<IActionResult> Update([FromBody]UpdateOrderItemDto dto, CancellationToken cancellationToken)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        var existing = await _service.GetOrderItemByIdAsync(dto.OrderItemId);
+        var existing = await _service.GetOrderItemByIdAsync(dto.OrderItemId, cancellationToken);
         if (existing == null)
             return NotFound(new { message = $"OrderItem with id {dto.OrderItemId} not found." });
         
-        await _service.UpdateOrderItemAsync(dto); 
+        await _service.UpdateOrderItemAsync(dto, cancellationToken); 
         return NoContent();
     }
 
@@ -86,13 +86,13 @@ public class OrderItemController : ControllerBase
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> Delete(int id)
+    public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
     {
-        var existing = await _service.GetOrderItemByIdAsync(id);
+        var existing = await _service.GetOrderItemByIdAsync(id, cancellationToken);
         if (existing == null)
             return NotFound(new { message = $"OrderItem with id {id} not found." });
         
-        await _service.DeleteOrderItemAsync(id); 
+        await _service.DeleteOrderItemAsync(id, cancellationToken); 
         return NoContent();
     }
 }

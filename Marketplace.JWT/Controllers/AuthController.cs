@@ -30,7 +30,7 @@ public class AuthController : ControllerBase
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> Register([FromBody] CreateUserDto model)
+    public async Task<IActionResult> Register([FromBody] RegisterRequestDto model)
     {
         await _jwtService.RegisterUserAsync(model);
         return Ok(new { Success = true, Error = (string)null! });

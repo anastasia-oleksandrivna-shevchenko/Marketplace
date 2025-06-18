@@ -18,7 +18,7 @@ public class UserController : ControllerBase
         _service = userService;
     }
     
-    private int GetUserId()
+    private int GetUserId(CancellationToken cancellationToken)
     {
         var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         return int.TryParse(userId, out var id) ? id : throw new UnauthorizedAccessException("Invalid or missing user ID in token.");
@@ -29,9 +29,9 @@ public class UserController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> GetUserById(int id)
+    public async Task<IActionResult> GetUserById(int id, CancellationToken cancellationToken)
     {
-        var user = await _service.GetUserByIdAsync(id);
+        var user = await _service.GetUserByIdAsync(id, cancellationToken);
         if (user == null)
             return NotFound(new { message = $"User with id {id} not found." });
         return Ok(user);
@@ -41,9 +41,9 @@ public class UserController : ControllerBase
     [HttpGet("all")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> GetAll()
+    public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
     {
-        var users = await _service.GetAllUsersAsync();
+        var users = await _service.GetAllUsersAsync(cancellationToken);
         return Ok(users);
     }
     
@@ -53,11 +53,11 @@ public class UserController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> Update([FromBody] UpdateUserDto dto)
+    public async Task<IActionResult> Update([FromBody] UpdateUserDto dto, CancellationToken cancellationToken)
     {
-        dto.UserId = GetUserId();
+        dto.UserId = GetUserId(cancellationToken);
 
-        await _service.UpdateUserAsync(dto);
+        await _service.UpdateUserAsync(dto, cancellationToken);
         return Ok(new { message = "User profile updated successfully." });
     }
     
@@ -65,10 +65,10 @@ public class UserController : ControllerBase
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> Delete()
+    public async Task<IActionResult> Delete(CancellationToken cancellationToken)
     {
-        var userId = GetUserId();
-        await _service.DeleteUserAsync(userId); 
+        var userId = GetUserId(cancellationToken);
+        await _service.DeleteUserAsync(userId, cancellationToken); 
         return Ok(new { message = "User account deleted successfully." });
     }
     
@@ -77,9 +77,9 @@ public class UserController : ControllerBase
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> Delete(int id)
+    public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
     {
-        await _service.DeleteUserAsync(id); 
+        await _service.DeleteUserAsync(id, cancellationToken); 
         return Ok(new { message = $"User with id {id} deleted." });
     }
     
