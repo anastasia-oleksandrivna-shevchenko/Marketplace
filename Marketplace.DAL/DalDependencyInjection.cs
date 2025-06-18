@@ -3,6 +3,7 @@ using Marketplace.DAL.Entities;
 using Marketplace.DAL.Helpers;
 using Marketplace.DAL.Repositories;
 using Marketplace.DAL.Repositories.Interfaces;
+using Marketplace.DAL.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -26,7 +27,7 @@ public static class DalDependencyInjection
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IOrderItemRepository, OrderItemRepository>();
         
-        services.AddScoped<IUnitOfWork, UnitOfWork>();
+        services.AddScoped<IUnitOfWork, UnitOfWork.UnitOfWork>();
         services.AddScoped<ISortHelper<Product>, SortHelper<Product>>();
 
         return services;

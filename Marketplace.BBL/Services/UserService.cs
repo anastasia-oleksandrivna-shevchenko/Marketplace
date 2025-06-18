@@ -1,17 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
-using Marketplace.BBL.Services.Interfaces;
-using Marketplace.DAL.Repositories.Interfaces;
+﻿using Marketplace.BBL.Services.Interfaces;
 using AutoMapper;
 using Marketplace.BBL.DTO.User;
 using Marketplace.BBL.Exceptions;
 using Marketplace.DAL.Entities;
+using Marketplace.DAL.UnitOfWork;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
-using ValidationException = Marketplace.BBL.Exceptions.ValidationException;
 
 namespace Marketplace.BBL.Services;
 

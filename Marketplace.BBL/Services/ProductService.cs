@@ -5,7 +5,7 @@ using Marketplace.BBL.Services.Interfaces;
 using Marketplace.DAL.Entities;
 using Marketplace.DAL.Entities.HelpModels;
 using Marketplace.DAL.Helpers;
-using Marketplace.DAL.Repositories.Interfaces;
+using Marketplace.DAL.UnitOfWork;
 
 namespace Marketplace.BBL.Services;
 

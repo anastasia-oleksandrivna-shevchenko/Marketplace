@@ -3,7 +3,7 @@ using Marketplace.BBL.DTO.Review;
 using Marketplace.BBL.Exceptions;
 using Marketplace.BBL.Services.Interfaces;
 using Marketplace.DAL.Entities;
-using Marketplace.DAL.Repositories.Interfaces;
+using Marketplace.DAL.UnitOfWork;
 
 namespace Marketplace.BBL.Services;
 

@@ -1,7 +1,7 @@
 ﻿using Marketplace.DAL.Data;
 using Marketplace.DAL.Repositories.Interfaces;
 
-namespace Marketplace.DAL.Repositories;
+namespace Marketplace.DAL.UnitOfWork;
 
 public class UnitOfWork: IUnitOfWork
 {

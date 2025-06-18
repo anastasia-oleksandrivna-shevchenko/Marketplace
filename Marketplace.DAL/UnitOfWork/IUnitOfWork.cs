@@ -1,4 +1,6 @@
-﻿namespace Marketplace.DAL.Repositories.Interfaces;
+﻿using Marketplace.DAL.Repositories.Interfaces;
+
+namespace Marketplace.DAL.UnitOfWork;
 
 public interface IUnitOfWork : IDisposable
 {
