@@ -1,11 +1,11 @@
 ﻿using FluentValidation;
-using Marketplace.BBL.DTO.User;
+using Marketplace.BBL.DTO.Auth;
 
-namespace Marketplace.BBL.Validators.User;
+namespace Marketplace.BBL.Validators.Auth;
 
-public class CreateUserDtoValidator : AbstractValidator<CreateUserDto>
+public class RegisterRequestDtoValidator : AbstractValidator<RegisterRequestDto>
 {
-    public CreateUserDtoValidator()
+    public RegisterRequestDtoValidator()
     {
         RuleFor(u => u.FirstName)
             .NotEmpty()
@@ -52,7 +52,7 @@ public class CreateUserDtoValidator : AbstractValidator<CreateUserDto>
 
         RuleFor(u => u.Role)
             .NotEmpty().WithMessage("Role is required.")
-            .Must(r => new[] { "Buyer", "Seller", "Admin" }.Contains(r))
-            .WithMessage("Role must be either 'Buyer', 'Seller', 'Admin'.");
+            .Must(r => new[] { "Buyer", "Seller" }.Contains(r))
+            .WithMessage("Role must be either 'Buyer', 'Seller'.");
     }
 }

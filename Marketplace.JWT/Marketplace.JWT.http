@@ -1,0 +1,6 @@
+@Marketplace.JWT_HostAddress = http://localhost:5197
+
+GET {{Marketplace.JWT_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

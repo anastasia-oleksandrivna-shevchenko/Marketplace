@@ -50,33 +50,6 @@ public class UserController : ControllerBase
         await _service.UpdateUserAsync(dto);
         return Ok(new { message = "User profile updated successfully." });
     }
-
-    [HttpPut("change-password")]
-    public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDto dto)
-    {
-        dto.UserId = GetUserId();
-
-        await _service.ChangePasswordAsync(dto);
-        return Ok(new { message = "Password changed successfully." });
-    }
-
-    [HttpPut("change-email")]
-    public async Task<IActionResult> ChangeEmail([FromBody] ChangeEmailDto dto)
-    {
-        dto.UserId = GetUserId();
-
-        await _service.ChangeEmailAsync(dto);
-        return Ok(new { message = "Email updated successfully." });
-    }
-
-    [HttpPut("change-username")]
-    public async Task<IActionResult> ChangeUsername([FromBody] ChangeUsernameDto dto)
-    {
-        dto.UserId = GetUserId();
-
-        await _service.ChangeUsernameAsync(dto);
-        return Ok(new { message = "Username updated successfully." });
-    }
     
     [HttpDelete("delete")]
     public async Task<IActionResult> Delete()

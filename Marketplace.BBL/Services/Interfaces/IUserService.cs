@@ -10,8 +10,5 @@ public interface IUserService
     Task<UserDto?> GetUserByEmailAsync(string email);
     Task<IEnumerable<UserDto>> GetUsersByRoleAsync(string role);
     Task UpdateUserAsync(UpdateUserDto dto);
-    Task ChangePasswordAsync(ChangePasswordDto dto);
-    Task ChangeEmailAsync(ChangeEmailDto dto);
-    Task ChangeUsernameAsync(ChangeUsernameDto dto);
     Task DeleteUserAsync(int userId);
 }

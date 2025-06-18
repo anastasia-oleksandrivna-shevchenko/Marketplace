@@ -14,67 +14,77 @@ using Marketplace.BBL.Validators.User;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using System.Net;
+using System.Net.Mail;
+using Marketplace.BBL;
 using Marketplace.BBL.Exceptions;
-using Marketplace.JWT.Configuration;
+using Marketplace.DAL;
+using Marketplace.Middlewares;
+//using Marketplace.JWT.Configuration;
 using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.OpenApi.Models;
 using ValidationException = FluentValidation.ValidationException;
 
 
 var builder = WebApplication.CreateBuilder(args);
+var configuration = builder.Configuration;
+var smtpSettings = configuration.GetSection("Smtp");
+
 
 // Add services to the container.
+
+var smtpClient = new SmtpClient(smtpSettings["Host"])
+{
+    Port = int.Parse(smtpSettings["Port"] ?? string.Empty),
+    Credentials = new NetworkCredential(smtpSettings["User"], smtpSettings["Pass"]),
+    EnableSsl = true
+};
+
+builder.Services
+    .AddFluentEmail(smtpSettings["Sender"])
+    .AddSmtpSender(smtpClient);
+
+builder.Services.AddControllers();
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-builder.Services.AddDbContext<MarketplaceDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddSwaggerGen(options =>
+{
+    var jwtSecurityScheme = new OpenApiSecurityScheme
+    {
+        BearerFormat = "JWT",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.Http,
+        Scheme = JwtBearerDefaults.AuthenticationScheme,
+        Description = "Enter your JWT Access Token",
+        Reference = new OpenApiReference
+        {
+            Id = JwtBearerDefaults.AuthenticationScheme,
+            Type = ReferenceType.SecurityScheme
+        }
+    };
+    options.AddSecurityDefinition("Bearer", jwtSecurityScheme);
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        { jwtSecurityScheme, [] }
+    });
+});
 
-builder.Services.AddJwtAuthentication(builder.Configuration);
-
-builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-
-builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
-builder.Services.AddScoped<IOrderRepository, OrderRepository>();
-builder.Services.AddScoped<IStoreRepository, StoreRepository>();
-builder.Services.AddScoped<IUserRepository, UserRepository>();
-builder.Services.AddScoped<IOrderItemRepository, OrderItemRepository>();
-builder.Services.AddScoped<IProductRepository, ProductRepository>();
-builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
-
-builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-builder.Services.AddAutoMapper(typeof(Program));
-
-builder.Services.AddAutoMapper(typeof(UserProfile).Assembly); 
-builder.Services.AddAutoMapper(typeof(StoreProfile).Assembly);
-builder.Services.AddAutoMapper(typeof(ReviewProfile).Assembly);
-builder.Services.AddAutoMapper(typeof(ProductProfile).Assembly);
-builder.Services.AddAutoMapper(typeof(OrderProfile).Assembly);
-builder.Services.AddAutoMapper(typeof(OrderItemProfile).Assembly);
-builder.Services.AddAutoMapper(typeof(CategoryProfile).Assembly);
-
-builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<IStoreService, StoreService>();
-builder.Services.AddScoped<IReviewService, ReviewService>();
-builder.Services.AddScoped<IProductService, ProductService>();
-builder.Services.AddScoped<IOrderService, OrderService>();
-builder.Services.AddScoped<IOrderItemService, OrderItemService>();
-builder.Services.AddScoped<ICategoryService, CategoryService>();
-builder.Services.AddScoped<IJwtService, JwtService>();
-
-builder.Services.AddScoped<ISortHelper<Product>, SortHelper<Product>>();
-
-builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
-
-builder.Services.AddControllers().AddFluentValidation();
-
-builder.Services.AddValidatorsFromAssemblyContaining<CreateUserDtoValidator>();
-
-builder.Services.AddIdentity<User, Role>()
+builder.Services
+    .AddIdentity<User, Role>(options =>
+    {
+        //options.SignIn.RequireConfirmedAccount = false;
+        options.SignIn.RequireConfirmedEmail = true;
+       // options.Password.RequireDigit = false;
+        //options.Password.RequireLowercase = false;
+        //options.Password.RequireUppercase = false;
+        //options.Password.RequireNonAlphanumeric = false;
+        options.Password.RequiredLength = 6;
+    })
+    //.AddRoles<Role>()
     .AddEntityFrameworkStores<MarketplaceDbContext>()
     .AddDefaultTokenProviders();
-
-var jwtSettings = builder.Configuration.GetSection("Jwt");
-var secretKey = jwtSettings["Secret"];
 
 builder.Services.AddAuthentication(options =>
     {
@@ -83,21 +93,34 @@ builder.Services.AddAuthentication(options =>
     })
     .AddJwtBearer(options =>
     {
+        options.RequireHttpsMetadata = false; // IN PROD: set to true
+        options.SaveToken = true;
         options.TokenValidationParameters = new TokenValidationParameters
         {
+            ValidIssuer = configuration["JwtConfig:Issuer"],
+            ValidAudience = configuration["JwtConfig:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JwtConfig:Key"]!)),
             ValidateIssuer = true,
             ValidateAudience = true,
             ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            ValidIssuer = jwtSettings["Issuer"],
-            ValidAudience = jwtSettings["Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey))
+            ValidateIssuerSigningKey = true
         };
     });
 
+builder.Services.AddAuthorization();
 
+builder.Services.AddDataAccess(builder.Configuration);
+builder.Services.AddBusinessLogic();
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<MarketplaceDbContext>();
+    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<Role>>();
+    await DbSeeder.SeedAsync(context, userManager, roleManager);
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -106,62 +129,15 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseExceptionHandler(errorApp =>
-{
-    errorApp.Run(async context =>
-    {
-        var exceptionHandlerPathFeature = context.Features.Get<IExceptionHandlerPathFeature>();
-        var exception = exceptionHandlerPathFeature?.Error;
-
-        context.Response.ContentType = "application/json";
-
-        switch (exception)
-        {
-            case ConflictException conflictEx:
-                context.Response.StatusCode = StatusCodes.Status409Conflict;
-                await context.Response.WriteAsJsonAsync(new { Success = false, Error = conflictEx.Message });
-                break;
-            case ValidationException validationEx:
-                context.Response.StatusCode = StatusCodes.Status400BadRequest;
-                await context.Response.WriteAsJsonAsync(new { Success = false, Error = validationEx.Message });
-                break;
-            case NotFoundException notFoundEx:
-                context.Response.StatusCode = StatusCodes.Status404NotFound;
-                await context.Response.WriteAsJsonAsync(new { Success = false, Error = notFoundEx.Message });
-                break;
-            case JwtUnauthorizedException unauthorizedEx:
-                context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-                await context.Response.WriteAsJsonAsync(new { Success = false, Error = unauthorizedEx.Message });
-                break;
-            default:
-                context.Response.StatusCode = StatusCodes.Status500InternalServerError;
-                await context.Response.WriteAsJsonAsync(new { Success = false, Error = "Internal server error" });
-                break;
-        }
-    });
-});
-
-
 app.UseHttpsRedirection();
+
+app.UseRouting();
+
+app.UseMiddleware<ErrorHandlingMiddleware>();
 
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers(); 
-
-
-
-using (var scope = app.Services.CreateScope())
-{
-    var services = scope.ServiceProvider;
-    
-    var context = scope.ServiceProvider.GetRequiredService<MarketplaceDbContext>();
-    
-    var userManager = services.GetRequiredService<UserManager<User>>();
-    var roleManager = services.GetRequiredService<RoleManager<Role>>();
-
-    await DbSeeder.SeedAsync(context, userManager, roleManager);
-
-}
 
 app.Run();

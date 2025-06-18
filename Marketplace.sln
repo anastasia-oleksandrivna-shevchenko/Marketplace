@@ -6,6 +6,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Marketplace.DAL", "Marketpl
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Marketplace.BBL", "Marketplace.BBL\Marketplace.BBL.csproj", "{22B545AE-0DA2-4D7D-8E00-1E23749469D3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Marketplace.JWT", "Marketplace.JWT\Marketplace.JWT.csproj", "{4EF0B5D0-9749-401E-AE51-7EA0999AB7FF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +26,9 @@ Global
 		{22B545AE-0DA2-4D7D-8E00-1E23749469D3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{22B545AE-0DA2-4D7D-8E00-1E23749469D3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{22B545AE-0DA2-4D7D-8E00-1E23749469D3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4EF0B5D0-9749-401E-AE51-7EA0999AB7FF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4EF0B5D0-9749-401E-AE51-7EA0999AB7FF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4EF0B5D0-9749-401E-AE51-7EA0999AB7FF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4EF0B5D0-9749-401E-AE51-7EA0999AB7FF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

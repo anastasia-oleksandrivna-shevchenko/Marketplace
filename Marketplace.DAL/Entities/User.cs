@@ -12,4 +12,6 @@ public class User : IdentityUser<int>
     public ICollection<Store> Stores { get; set; }
     public ICollection<Order> Orders { get; set; }
     public ICollection<Review> Reviews { get; set; }
+    
+    public ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
 }

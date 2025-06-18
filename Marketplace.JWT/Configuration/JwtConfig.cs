@@ -13,7 +13,7 @@ public static class JwtConfig
 {
     public static IServiceCollection AddJwtAuthentication(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddIdentityCore<User>(options =>
+        services.AddIdentity<User, Role>(options =>
             {
                 options.SignIn.RequireConfirmedAccount = false;
                 options.SignIn.RequireConfirmedEmail = true;
@@ -23,7 +23,6 @@ public static class JwtConfig
                 options.Password.RequireNonAlphanumeric = false;
                 options.Password.RequiredLength = 6;
             })
-            .AddRoles<IdentityRole>()
             .AddEntityFrameworkStores<MarketplaceDbContext>()
             .AddDefaultTokenProviders();
 

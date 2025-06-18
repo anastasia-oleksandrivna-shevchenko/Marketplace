@@ -80,61 +80,6 @@ public class UserService : IUserService
         _unitOfWork.UserRepository.Update(user);
         await _unitOfWork.SaveAsync();
     }
-    
-    public async Task ChangePasswordAsync(ChangePasswordDto dto)
-    {
-        var user = await _unitOfWork.UserRepository.FindByIdAsync(dto.UserId);
-        if (user == null) 
-            throw new NotFoundException($"User with id {dto.UserId} not found");
-
-        var verify = _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, dto.OldPassword);
-        if (verify == PasswordVerificationResult.Failed)
-            throw new ValidationException("Current password is incorrect");
-
-        if (dto.NewPassword != dto.ConfirmPassword)
-            throw new ValidationException("New password and confirmation do not match");
-        
-        user.PasswordHash = _passwordHasher.HashPassword(user, dto.NewPassword);
-
-        _unitOfWork.UserRepository.Update(user);
-        await _unitOfWork.SaveAsync();
-    }
-    
-    public async Task ChangeEmailAsync(ChangeEmailDto dto)
-    {
-        var user = await _unitOfWork.UserRepository.FindByIdAsync(dto.UserId);
-        if (user == null) throw new Exception("User not found");
-
-        var verify = _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, dto.Password);
-        if (verify == PasswordVerificationResult.Failed)
-            throw new ValidationException("Password is incorrect");
-        
-        if (await _unitOfWork.UserRepository.CheckUserExistsByEmailAsync(dto.NewEmail))
-            throw new ValidationException("Email already in use");
-
-        user.Email = dto.NewEmail;
-
-        _unitOfWork.UserRepository.Update(user);
-        await _unitOfWork.SaveAsync();
-    }
-    
-    public async Task ChangeUsernameAsync(ChangeUsernameDto dto)
-    {
-        var user = await _unitOfWork.UserRepository.FindByIdAsync(dto.UserId);
-        if (user == null) throw new Exception("User not found");
-
-        var verify = _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, dto.Password);
-        if (verify == PasswordVerificationResult.Failed)
-            throw new ValidationException("Password is incorrect");
-        
-        if (await _unitOfWork.UserRepository.CheckUserExistsByUsernameAsync(dto.NewUsername))
-            throw new ValidationException("Username already in use");
-
-        user.UserName = dto.NewUsername;
-
-        _unitOfWork.UserRepository.Update(user);
-        await _unitOfWork.SaveAsync();
-    }
 
     public async Task DeleteUserAsync(int userId)
     {
