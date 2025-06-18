@@ -13,7 +13,8 @@ public interface IProductRepository : IGenericRepository<Product>
     public Task<IEnumerable<Product>> FindProductsByPriceRangeAsync(decimal minPrice, decimal maxPrice, CancellationToken cancellationToken = default);
     public Task<IEnumerable<Product>> FindProductsSortedByPriceAsync(bool ascending = true, CancellationToken cancellationToken = default);
     public Task<IEnumerable<Product>> FindProductsSortedByRatingAsync(bool ascending = true, CancellationToken cancellationToken = default);
-
+    public Task<IEnumerable<Product>> FindAllWithStoreAndCategory(CancellationToken cancellationToken = default);
+    public Task<Product?> FindByIdWithStoreAndCategoryAsync(int id, CancellationToken cancellationToken = default);
     IQueryable<Product> ApplyFilters(IQueryable<Product> query, ProductParameters parameters);
     public Task<PagedList<Product>> GetAllPaginatedAsync(
         ProductParameters parameters,

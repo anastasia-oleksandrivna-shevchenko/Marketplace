@@ -18,7 +18,7 @@ public class UserController : ControllerBase
         _service = userService;
     }
     
-    private int GetUserId(CancellationToken cancellationToken)
+    private int GetUserId()
     {
         var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         return int.TryParse(userId, out var id) ? id : throw new UnauthorizedAccessException("Invalid or missing user ID in token.");
@@ -55,7 +55,7 @@ public class UserController : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> Update([FromBody] UpdateUserDto dto, CancellationToken cancellationToken)
     {
-        dto.UserId = GetUserId(cancellationToken);
+        dto.UserId = GetUserId();
 
         await _service.UpdateUserAsync(dto, cancellationToken);
         return Ok(new { message = "User profile updated successfully." });
@@ -67,7 +67,7 @@ public class UserController : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> Delete(CancellationToken cancellationToken)
     {
-        var userId = GetUserId(cancellationToken);
+        var userId = GetUserId();
         await _service.DeleteUserAsync(userId, cancellationToken); 
         return Ok(new { message = "User account deleted successfully." });
     }

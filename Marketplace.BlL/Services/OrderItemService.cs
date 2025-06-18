@@ -18,53 +18,53 @@ public class OrderItemService : IOrderItemService
         _mapper = mapper;
     }
     
-    public async Task<OrderItemDto> CreateOrderItemAsync(CreateOrderItemDto dto)
+    public async Task<OrderItemDto> CreateOrderItemAsync(CreateOrderItemDto dto, CancellationToken cancellationToken = default)
     {
         var orderItem = _mapper.Map<OrderItem>(dto);
-        await _unitOfWork.OrderItemRepository.CreateAsync(orderItem);
-        await _unitOfWork.SaveAsync();
+        await _unitOfWork.OrderItemRepository.CreateAsync(orderItem, cancellationToken);
+        await _unitOfWork.SaveAsync(cancellationToken);
         return _mapper.Map<OrderItemDto>(orderItem);
     }
     
-    public async Task UpdateOrderItemAsync(UpdateOrderItemDto dto)
+    public async Task UpdateOrderItemAsync(UpdateOrderItemDto dto, CancellationToken cancellationToken = default)
     {
-        var item = await _unitOfWork.OrderItemRepository.FindByIdAsync(dto.OrderItemId);
+        var item = await _unitOfWork.OrderItemRepository.FindByIdAsync(dto.OrderItemId, cancellationToken);
         if (item == null) 
             throw new NotFoundException($"Order item with ID {dto.OrderItemId} not found");
         
         item.Quantity = dto.Quantity;
 
-        await _unitOfWork.SaveAsync();
+        await _unitOfWork.SaveAsync(cancellationToken);
     }
 
-    public async Task DeleteOrderItemAsync(int id)
+    public async Task DeleteOrderItemAsync(int id, CancellationToken cancellationToken = default)
     {
-        var item = await _unitOfWork.OrderItemRepository.FindByIdAsync(id);
+        var item = await _unitOfWork.OrderItemRepository.FindByIdAsync(id, cancellationToken);
         if (item == null) 
             throw new NotFoundException($"Order item with ID {id} not found");
 
-        _unitOfWork.OrderItemRepository.Delete(item);
-        await _unitOfWork.SaveAsync();
+        _unitOfWork.OrderItemRepository.Delete(item, cancellationToken);
+        await _unitOfWork.SaveAsync(cancellationToken);
     }
     
-    public async Task<OrderItemDto> GetOrderItemByIdAsync(int id)
+    public async Task<OrderItemDto> GetOrderItemByIdAsync(int id, CancellationToken cancellationToken = default)
     {
-        var item = await _unitOfWork.OrderItemRepository.FindByIdAsync(id);
+        var item = await _unitOfWork.OrderItemRepository.FindOrderItemWithProductsByIdAsync(id, cancellationToken);
         if (item == null) 
         throw new NotFoundException($"Order item with ID {id} not found");
         
         return _mapper.Map<OrderItemDto>(item);
     }
     
-    public async Task<IEnumerable<OrderItemDto>> GetAllOrderItemsAsync()
+    public async Task<IEnumerable<OrderItemDto>> GetAllOrderItemsAsync(CancellationToken cancellationToken = default)
     {
-        var items = await _unitOfWork.OrderItemRepository.FindAllAsync();
+        var items = await _unitOfWork.OrderItemRepository.FindOrderItemsWithProductsAsync(cancellationToken);
         return _mapper.Map<IEnumerable<OrderItemDto>>(items);
     }
     
-    public async Task<IEnumerable<OrderItemDto>> GetItemsByOrderIdAsync(int orderId)
+    public async Task<IEnumerable<OrderItemDto>> GetItemsByOrderIdAsync(int orderId, CancellationToken cancellationToken = default)
     {
-        var items = await _unitOfWork.OrderItemRepository.FindItemsByOrderIdAsync(orderId);
+        var items = await _unitOfWork.OrderItemRepository.FindItemsByOrderIdAsync(orderId, cancellationToken);
         return _mapper.Map<IEnumerable<OrderItemDto>>(items);
     }
     

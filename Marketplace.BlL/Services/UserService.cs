@@ -4,7 +4,7 @@ using Marketplace.BLL.Exceptions;
 using Marketplace.BLL.Services.Interfaces;
 using Marketplace.DAL.Entities;
 using Marketplace.DAL.UnitOfWork;
-using Microsoft.AspNetCore.Identity;
+using System.Linq;
 
 namespace Marketplace.BLL.Services;
 
@@ -12,24 +12,22 @@ public class UserService : IUserService
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
-    private readonly PasswordHasher<User> _passwordHasher;
 
     public UserService(IUnitOfWork unitOfWork, IMapper mapper)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
-        _passwordHasher = new PasswordHasher<User>();
     }
     
-    public async Task<IEnumerable<UserDto>> GetAllUsersAsync()
+    public async Task<IEnumerable<UserDto>> GetAllUsersAsync(CancellationToken cancellationToken = default)
     {
-        var users = await _unitOfWork.UserRepository.FindAllAsync();
+        var users = await _unitOfWork.UserRepository.FindAllAsync(cancellationToken);
         return _mapper.Map<IEnumerable<UserDto>>(users);
     }
 
-    public async Task<UserDto> GetUserByIdAsync(int userId)
+    public async Task<UserDto> GetUserByIdAsync(int userId, CancellationToken cancellationToken = default)
     {
-        var user = await _unitOfWork.UserRepository.FindByIdAsync(userId);
+        var user = await _unitOfWork.UserRepository.FindByIdAsync(userId, cancellationToken);
         if (user == null) 
             throw new NotFoundException($"User with id {userId} not found");
         return _mapper.Map<UserDto>(user);
@@ -59,9 +57,9 @@ public class UserService : IUserService
         return _mapper.Map<IEnumerable<UserDto>>(users);
     }
     
-    public async Task UpdateUserAsync(UpdateUserDto dto)
+    public async Task UpdateUserAsync(UpdateUserDto dto, CancellationToken cancellationToken = default)
     {
-        var user = await _unitOfWork.UserRepository.FindByIdAsync(dto.UserId);
+        var user = await _unitOfWork.UserRepository.FindByIdAsync(dto.UserId, cancellationToken);
         if (user == null) 
             throw new NotFoundException($"User with id {dto.UserId} not found");
         
@@ -70,17 +68,18 @@ public class UserService : IUserService
         user.MiddleName = dto.MiddleName ?? user.MiddleName;
         user.PhoneNumber = dto.Phone ?? user.PhoneNumber;
 
-        _unitOfWork.UserRepository.Update(user);
-        await _unitOfWork.SaveAsync();
+        _unitOfWork.UserRepository.Update(user, cancellationToken);
+        await _unitOfWork.SaveAsync(cancellationToken);
     }
 
-    public async Task DeleteUserAsync(int userId)
+    public async Task DeleteUserAsync(int userId, CancellationToken cancellationToken = default)
     {
-        var user = await _unitOfWork.UserRepository.FindByIdAsync(userId);
+        var user = await _unitOfWork.UserRepository.FindByIdAsync(userId, cancellationToken);
         if (user == null) 
             throw new NotFoundException($"User with id {userId} not found");
         
-        _unitOfWork.UserRepository.Delete(user);
-        await _unitOfWork.SaveAsync();
+        _unitOfWork.UserRepository.Delete(user, cancellationToken);
+        await _unitOfWork.SaveAsync(cancellationToken);
     }
+   
 }

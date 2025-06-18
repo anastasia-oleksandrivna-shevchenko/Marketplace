@@ -50,7 +50,7 @@ public class StoreController : ControllerBase
         return Ok(stores);
     }
     
-    [HttpGet("sorted-by-rating/{sort}")]
+    [HttpGet("sorted-by-rating/")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetAllSortedByRating(bool sortAsc, CancellationToken cancellationToken)
@@ -59,7 +59,7 @@ public class StoreController : ControllerBase
         return Ok(stores);
     }
     
-    [HttpGet("sorted-by-orders-count/{sort}")]
+    [HttpGet("sorted-by-orders-count/")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetAllSortedByOrdersCount(bool sortAsc, CancellationToken cancellationToken)

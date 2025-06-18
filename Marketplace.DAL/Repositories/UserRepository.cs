@@ -41,4 +41,10 @@ public class UserRepository: GenericRepository<User>, IUserRepository
     {
         return await _userManager.GetUsersInRoleAsync(role);
     }
+    
+    public async Task<string?> FindRoleAsync(User user)
+    {
+        var role = await _userManager.GetRolesAsync(user);
+        return role.FirstOrDefault();
+    }
 }

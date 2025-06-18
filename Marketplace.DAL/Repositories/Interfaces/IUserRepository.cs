@@ -9,4 +9,5 @@ public interface IUserRepository : IGenericRepository<User>
     public Task<bool> CheckUserExistsByUsernameAsync(string username);
     public Task<bool> CheckUserExistsByEmailAsync(string email);
     public Task<IEnumerable<User>> FindUsersByRoleAsync(string role);
+    public Task<string?> FindRoleAsync(User user);
 }

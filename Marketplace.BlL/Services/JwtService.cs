@@ -30,7 +30,7 @@ public class JwtService : IJwtService
         _emailService = emailService;
     }
     
-    public async Task RegisterUserAsync(CreateUserDto model)
+    public async Task RegisterUserAsync(RegisterRequestDto model)
     {
         if (await _userManager.FindByNameAsync(model.Username) != null)
             throw new ConflictException("User with such name already exists.");

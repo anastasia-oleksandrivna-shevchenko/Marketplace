@@ -18,59 +18,59 @@ public class StoreService: IStoreService
         _mapper = mapper;
     }
     
-    public async Task<IEnumerable<StoreDto>> GetAllStoresAsync()
+    public async Task<IEnumerable<StoreDto>> GetAllStoresAsync(CancellationToken cancellationToken = default)
     {
-        var stores = await _unitOfWork.StoreRepository.FindAllAsync();
+        var stores = await _unitOfWork.StoreRepository.FindAllAsync(cancellationToken);
         return _mapper.Map<IEnumerable<StoreDto>>(stores);
     }
     
-    public async Task<IEnumerable<StoreDto>> GetStoresByUserIdAsync(int userId)
+    public async Task<IEnumerable<StoreDto>> GetStoresByUserIdAsync(int userId, CancellationToken cancellationToken = default)
     {
-        var stores = await _unitOfWork.StoreRepository.FindStoresByUserIdAsync(userId);
+        var stores = await _unitOfWork.StoreRepository.FindStoresByUserIdAsync(userId, cancellationToken);
         if (stores == null)
             throw new NotFoundException($"Stores with userID {userId} not found");
         return _mapper.Map<IEnumerable<StoreDto>>(stores);
     }
 
-    public async Task<IEnumerable<StoreDto>> GetStoresSortedByOrdersCountAsync(bool ascending = false)
+    public async Task<IEnumerable<StoreDto>> GetStoresSortedByOrdersCountAsync(bool ascending = false, CancellationToken cancellationToken = default)
     {
-        var stores = await _unitOfWork.StoreRepository.FindStoresSortedByOrdersCountAsync(ascending);
+        var stores = await _unitOfWork.StoreRepository.FindStoresSortedByOrdersCountAsync(ascending, cancellationToken);
         return _mapper.Map<IEnumerable<StoreDto>>(stores);
     }
 
-    public async Task<IEnumerable<StoreDto>> GetStoresSortedByRatingAsync(bool ascending = false)
+    public async Task<IEnumerable<StoreDto>> GetStoresSortedByRatingAsync(bool ascending = false, CancellationToken cancellationToken = default)
     {
-        var stores = await _unitOfWork.StoreRepository.FindStoresSortedByRatingAsync(ascending);
+        var stores = await _unitOfWork.StoreRepository.FindStoresSortedByRatingAsync(ascending, cancellationToken);
         return _mapper.Map<IEnumerable<StoreDto>>(stores);
     }
 
-    public async Task<StoreDto> GetStoreByIdAsync(int id)
+    public async Task<StoreDto> GetStoreByIdAsync(int id, CancellationToken cancellationToken = default)
     {
-        var store = await _unitOfWork.StoreRepository.FindByIdAsync(id);
+        var store = await _unitOfWork.StoreRepository.FindByIdAsync(id, cancellationToken);
         if (store == null)
             throw new NotFoundException($"Store with ID {id} not found");
         return _mapper.Map<StoreDto>(store);
     }
 
-    public async Task<IEnumerable<StoreDto>> GetStoresByNameAsync(string name)
+    public async Task<IEnumerable<StoreDto>> GetStoresByNameAsync(string name, CancellationToken cancellationToken = default)
     {
-        var stores = await _unitOfWork.StoreRepository.FindStoresByNameAsync(name);
+        var stores = await _unitOfWork.StoreRepository.FindStoresByNameAsync(name, cancellationToken);
         if (stores == null || !stores.Any())
             throw new NotFoundException($"Stores with name '{name}' not found");
         return _mapper.Map<IEnumerable<StoreDto>>(stores);
     }
     
-    public async Task<StoreDto> CreateStoreAsync(CreateStoreDto dto)
+    public async Task<StoreDto> CreateStoreAsync(CreateStoreDto dto, CancellationToken cancellationToken = default)
     {
         var store = _mapper.Map<Store>(dto);
-        await _unitOfWork.StoreRepository.CreateAsync(store);
-        await _unitOfWork.SaveAsync();
+        await _unitOfWork.StoreRepository.CreateAsync(store, cancellationToken);
+        await _unitOfWork.SaveAsync(cancellationToken);
         return _mapper.Map<StoreDto>(store);
     }
     
-    public async Task UpdateStoreAsync(UpdateStoreDto dto)
+    public async Task UpdateStoreAsync(UpdateStoreDto dto, CancellationToken cancellationToken = default)
     {
-        var store = await _unitOfWork.StoreRepository.FindByIdAsync(dto.StoreId);
+        var store = await _unitOfWork.StoreRepository.FindByIdAsync(dto.StoreId, cancellationToken);
         if (store == null)
             throw new NotFoundException($"Store with ID {dto.StoreId} not found");
 
@@ -78,17 +78,17 @@ public class StoreService: IStoreService
         store.Description = dto.Description ?? store.Description;
         store.Location = dto.Location ?? store.Location;
 
-        await _unitOfWork.SaveAsync();
+        await _unitOfWork.SaveAsync(cancellationToken);
     }
     
-    public async Task DeleteStoreAsync(int storeId)
+    public async Task DeleteStoreAsync(int storeId, CancellationToken cancellationToken = default)
     {
-        var store = await _unitOfWork.StoreRepository.FindByIdAsync(storeId);
+        var store = await _unitOfWork.StoreRepository.FindByIdAsync(storeId, cancellationToken);
         if (store == null)
             throw new NotFoundException($"Store with ID {storeId} not found");
 
-        _unitOfWork.StoreRepository.Delete(store);
-        await _unitOfWork.SaveAsync();
+        _unitOfWork.StoreRepository.Delete(store, cancellationToken);
+        await _unitOfWork.SaveAsync(cancellationToken);
     }
     
 }

@@ -11,11 +11,27 @@ public class ProductRepository: GenericRepository<Product>, IProductRepository
 {
     public ProductRepository(MarketplaceDbContext context) : base(context) {}
 
+    public async Task<IEnumerable<Product>> FindAllWithStoreAndCategory(CancellationToken cancellationToken = default)
+    {
+        return await _dbSet
+            .Include(p => p.Store)
+            .Include(p => p.Category)
+            .ToListAsync(cancellationToken);
+    }
+    
     public async Task<List<Product>> FindByIdsAsync(List<int> ids, CancellationToken cancellationToken = default)
     {
         return await _dbSet
             .Where(p => ids.Contains(p.ProductId))
             .ToListAsync(cancellationToken);
+    }
+    public async Task<Product?> FindByIdWithStoreAndCategoryAsync(int id, CancellationToken cancellationToken = default)
+    {
+        return await _dbSet
+            .Where(p => p.ProductId == id)
+            .Include(p => p.Store)
+            .Include(p => p.Category)
+            .FirstOrDefaultAsync(p => p.ProductId == id, cancellationToken);
     }
     
     public async Task<IEnumerable<Product>> FindProductsByCategoryIdAsync(int categoryId, CancellationToken cancellationToken = default)
@@ -23,7 +39,7 @@ public class ProductRepository: GenericRepository<Product>, IProductRepository
         return await _dbSet
             .Where(o => o.CategoryId == categoryId)
             .Include(p => p.Store)
-            .Include(p => p.Reviews)
+            .Include(p => p.Category)
             .ToListAsync(cancellationToken);
     }
 
@@ -32,7 +48,7 @@ public class ProductRepository: GenericRepository<Product>, IProductRepository
         return await _dbSet
             .Where(o => o.StoreId == storeId)
             .Include(p => p.Category)
-            .Include(p => p.Reviews)
+            .Include(p => p.Store)
             .ToListAsync(cancellationToken);
     }
 
@@ -41,7 +57,7 @@ public class ProductRepository: GenericRepository<Product>, IProductRepository
         return await _dbSet
             .Where(p => p.Name.Contains(name))
             .Include(p => p.Store)
-            .Include(p => p.Reviews)
+            .Include(p => p.Category)
             .ToListAsync(cancellationToken);
     }
 
@@ -50,7 +66,7 @@ public class ProductRepository: GenericRepository<Product>, IProductRepository
         return await _dbSet
             .Where(p => p.Price >= minPrice && p.Price <= maxPrice)
             .Include(p => p.Store)
-            .Include(p => p.Reviews)
+            .Include(p => p.Category)
             .ToListAsync(cancellationToken);
     }
 
@@ -58,6 +74,8 @@ public class ProductRepository: GenericRepository<Product>, IProductRepository
     {
         return await _dbSet
             .OrderBy(p => ascending? p.Price : -p.Price)
+            .Include(p => p.Store)
+            .Include(p => p.Category)
             .ToListAsync(cancellationToken);
     }
 
@@ -65,6 +83,8 @@ public class ProductRepository: GenericRepository<Product>, IProductRepository
     {
         return await _dbSet
             .Include(p => p.Reviews)
+            .Include(p => p.Store)
+            .Include(p => p.Category)
             .OrderBy(p => ascending 
                 ? p.Reviews.Select(r=>r.Rating).DefaultIfEmpty(0).Average() 
                 : -p.Reviews.Select(r => r.Rating).Average())

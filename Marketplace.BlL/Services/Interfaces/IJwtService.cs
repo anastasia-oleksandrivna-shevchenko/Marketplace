@@ -7,7 +7,7 @@ namespace Marketplace.BLL.Services.Interfaces;
 public interface IJwtService
 {
     Task<LoginResponseDto> LoginAsync(LoginRequestDto loginRequestDto);
-    Task RegisterUserAsync(CreateUserDto createUserDto);
+    Task RegisterUserAsync(RegisterRequestDto createUserDto);
     Task<RefreshTokenResponseDto> RefreshTokenAsync(string ipAddress);
     Task<bool> ConfirmEmailAsync(string userId, string token);
     Task<bool> ForgotPasswordAsync(string email);

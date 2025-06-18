@@ -62,13 +62,13 @@ public static class BblDependencyInjection
         services.AddScoped<IValidator<CreateStoreDto>, CreateStoreDtoValidator>();
         services.AddScoped<IValidator<UpdateStoreDto>, UpdateStoreDtoValidator>();
         
-        services.AddScoped<IValidator<CreateUserDto>, CreateUserDtoValidator>();
         services.AddScoped<IValidator<UpdateUserDto>, UpdateUserDtoValidator>();
         
         services.AddScoped<IValidator<ForgotPasswordRequestDto>, ForgotPasswordRequestDtoValidator>();
         services.AddScoped<IValidator<ResetPasswordRequestDto>, ResetPasswordRequestDtoValidator>();
         
         services.AddAutoMapper(typeof(UserProfile).Assembly);
+        
 
         services.AddHttpContextAccessor();
         

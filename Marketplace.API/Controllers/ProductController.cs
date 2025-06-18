@@ -107,7 +107,7 @@ public class ProductController : ControllerBase
         return Ok(products);
     }
 
-    [HttpGet("by-name/{name}")]
+    [HttpGet("by-name")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -120,7 +120,7 @@ public class ProductController : ControllerBase
         return Ok(products);
     }
 
-    [HttpGet("range-{min}/{max}")]
+    [HttpGet("range")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> ByPriceRange([FromQuery] decimal min, [FromQuery] decimal max, CancellationToken cancellationToken)
