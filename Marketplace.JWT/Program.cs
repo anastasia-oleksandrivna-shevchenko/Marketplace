@@ -1,6 +1,6 @@
 using System.Net;
 using System.Net.Mail;
-using Marketplace.BBL;
+using Marketplace.BLL;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.OpenApi.Models;
 using Marketplace.DAL;

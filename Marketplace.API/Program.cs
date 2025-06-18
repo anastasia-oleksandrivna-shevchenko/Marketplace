@@ -1,29 +1,15 @@
-using Marketplace.BBL.Configurations;
-using Marketplace.BBL.Services;
-using Marketplace.BBL.Services.Interfaces;
 using Marketplace.DAL.Data;
 using Marketplace.DAL.Entities;
-using Marketplace.DAL.Helpers;
-using Marketplace.DAL.Repositories;
-using Marketplace.DAL.Repositories.Interfaces;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using FluentValidation;
-using FluentValidation.AspNetCore;
-using Marketplace.BBL.Validators.User;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.Net;
 using System.Net.Mail;
-using Marketplace.BBL;
-using Marketplace.BBL.Exceptions;
+using Marketplace.BLL;
 using Marketplace.DAL;
 using Marketplace.Middlewares;
-//using Marketplace.JWT.Configuration;
-using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.OpenApi.Models;
-using ValidationException = FluentValidation.ValidationException;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -74,15 +60,14 @@ builder.Services.AddSwaggerGen(options =>
 builder.Services
     .AddIdentity<User, Role>(options =>
     {
-        //options.SignIn.RequireConfirmedAccount = false;
-        options.SignIn.RequireConfirmedEmail = true;
-       // options.Password.RequireDigit = false;
-        //options.Password.RequireLowercase = false;
-        //options.Password.RequireUppercase = false;
-        //options.Password.RequireNonAlphanumeric = false;
+        options.SignIn.RequireConfirmedAccount = false;
+        options.SignIn.RequireConfirmedEmail = false;
+        options.Password.RequireDigit = true;
+        options.Password.RequireLowercase = true;
+        options.Password.RequireUppercase = true;
+        options.Password.RequireNonAlphanumeric = true;
         options.Password.RequiredLength = 6;
     })
-    //.AddRoles<Role>()
     .AddEntityFrameworkStores<MarketplaceDbContext>()
     .AddDefaultTokenProviders();
 
@@ -93,7 +78,7 @@ builder.Services.AddAuthentication(options =>
     })
     .AddJwtBearer(options =>
     {
-        options.RequireHttpsMetadata = false; // IN PROD: set to true
+        options.RequireHttpsMetadata = false; 
         options.SaveToken = true;
         options.TokenValidationParameters = new TokenValidationParameters
         {

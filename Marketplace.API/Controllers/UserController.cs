@@ -1,6 +1,6 @@
 ﻿using System.Security.Claims;
-using Marketplace.BBL.DTO.User;
-using Marketplace.BBL.Services.Interfaces;
+using Marketplace.BLL.DTO.User;
+using Marketplace.BLL.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

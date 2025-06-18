@@ -1,5 +1,5 @@
-﻿using Marketplace.BBL.DTO.OrderItem;
-using Marketplace.BBL.Services.Interfaces;
+﻿using Marketplace.BLL.DTO.OrderItem;
+using Marketplace.BLL.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;

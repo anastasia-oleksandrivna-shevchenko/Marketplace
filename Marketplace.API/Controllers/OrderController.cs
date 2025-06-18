@@ -1,5 +1,5 @@
-﻿using Marketplace.BBL.DTO.Order;
-using Marketplace.BBL.Services.Interfaces;
+﻿using Marketplace.BLL.DTO.Order;
+using Marketplace.BLL.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;

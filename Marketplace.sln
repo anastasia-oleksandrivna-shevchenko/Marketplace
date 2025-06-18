@@ -4,7 +4,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Marketplace.API", "Marketpl
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Marketplace.DAL", "Marketplace.DAL\Marketplace.DAL.csproj", "{20299659-6F59-48CF-B829-92B02CA54BBD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Marketplace.BBL", "Marketplace.BBL\Marketplace.BBL.csproj", "{22B545AE-0DA2-4D7D-8E00-1E23749469D3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Marketplace.BLL", "Marketplace.BLL\Marketplace.BLL.csproj", "{22B545AE-0DA2-4D7D-8E00-1E23749469D3}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Marketplace.JWT", "Marketplace.JWT\Marketplace.JWT.csproj", "{4EF0B5D0-9749-401E-AE51-7EA0999AB7FF}"
 EndProject

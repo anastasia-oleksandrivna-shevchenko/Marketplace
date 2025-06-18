@@ -15,7 +15,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Marketplace.API\Marketplace.API.csproj" />
-      <ProjectReference Include="..\Marketplace.BBL\Marketplace.BBL.csproj" />
+      <ProjectReference Include="..\Marketplace.BLL\Marketplace.BLL.csproj" />
       <ProjectReference Include="..\Marketplace.DAL\Marketplace.DAL.csproj" />
     </ItemGroup>
 

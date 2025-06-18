@@ -1,9 +1,9 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using Marketplace.BBL.DTO.Auth;
-using Marketplace.BBL.DTO.User;
-using Marketplace.BBL.Services.Interfaces;
+using Marketplace.BLL.DTO.Auth;
+using Marketplace.BLL.DTO.User;
+using Marketplace.BLL.Services.Interfaces;
 using Marketplace.DAL.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;

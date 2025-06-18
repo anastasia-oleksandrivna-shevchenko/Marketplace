@@ -1,5 +1,5 @@
-﻿using Marketplace.BBL.DTO.Product;
-using Marketplace.BBL.Services.Interfaces;
+﻿using Marketplace.BLL.DTO.Product;
+using Marketplace.BLL.Services.Interfaces;
 using Marketplace.DAL.Entities.HelpModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

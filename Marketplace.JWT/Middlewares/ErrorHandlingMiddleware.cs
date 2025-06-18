@@ -1,8 +1,8 @@
 ﻿using System.Net;
 using System.Text.Json;
 using System.ComponentModel.DataAnnotations;
-using Marketplace.BBL.Exceptions;
-using ValidationException = Marketplace.BBL.Exceptions.ValidationException;
+using Marketplace.BLL.Exceptions;
+using ValidationException = Marketplace.BLL.Exceptions.ValidationException;
 
 namespace Marketplace.Middlewares;
 
